@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AuthContext } from "../context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // ===== Animations =====
 const fadeInUp = keyframes`
@@ -117,11 +117,16 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
+  const navigate = useNavigate(); // 👈 useNavigate hook added
 
   const submit = (e) => {
     e.preventDefault();
+
     const username = email.split("@")[0] || "user";
-    login({ username, email });
+    login({ username, email }); // Login context call
+
+    // ✅ Redirect user to Dashboard after login
+    navigate("/dashboard");
   };
 
   return (
