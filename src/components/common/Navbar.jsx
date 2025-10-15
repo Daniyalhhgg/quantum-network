@@ -1,5 +1,3 @@
-// ==== src/components/layout/Navbar.js ====
-
 import React, { useContext, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
@@ -161,37 +159,39 @@ const NavLinks = styled.nav`
     }
   }
 
-  // ===== Mobile Styles =====
+  /* ===== Mobile Styles ===== */
   @media (max-width: 768px) {
     position: fixed;
     top: 0;
     right: 0;
-    width: 280px;
+    width: 80%;
+    max-width: 320px;
     height: 100vh;
     background: rgba(5, 10, 25, 0.98);
     backdrop-filter: blur(20px);
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
-    padding: 80px 2rem 2rem;
-    gap: 1.5rem;
+    padding: 80px 1.5rem 2rem;
+    gap: 1.3rem;
     transform: translateX(${(props) => (props.open ? "0" : "100%")});
     transition: transform 0.3s ease-in-out;
     box-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
     border-left: 1px solid rgba(0, 245, 160, 0.2);
     animation: ${slideInRight} 0.3s ease-out;
+    overflow-y: auto;
 
     a {
       font-size: 1.1rem;
-      padding: 12px 8px;
+      padding: 10px 0;
       width: 100%;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .user-controls {
       flex-direction: column;
       align-items: flex-start;
-      gap: 1rem;
+      gap: 0.8rem;
       margin-left: 0;
       margin-top: 1rem;
       padding-top: 1rem;
@@ -199,7 +199,9 @@ const NavLinks = styled.nav`
       width: 100%;
 
       .username {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        color: #00d9f5;
+        word-break: break-all;
       }
 
       button.logout {
@@ -223,8 +225,8 @@ const Overlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
   z-index: 99;
   transition: opacity 0.3s ease;
 
@@ -239,32 +241,27 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
-  // Close menu when route changes
   useEffect(() => {
     setMenuOpen(false);
   }, [location]);
 
-  // Close menu on escape key
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") setMenuOpen(false);
     };
-
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
-  // Prevent body scroll when menu is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "unset";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
   }, [menuOpen]);
 
+  // === FIX: Safely extract username string ===
   const getUsername = () => {
     if (typeof user?.username === "string") return user.username;
     if (typeof user?.user?.username === "string") return user.user.username;
+    if (typeof user?.username?.username === "string") return user.username.username;
     return "User";
   };
 
