@@ -1,3 +1,5 @@
+// ==== src/components/layout/Navbar.js ====
+
 import React, { useContext, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
@@ -159,7 +161,7 @@ const NavLinks = styled.nav`
     }
   }
 
-  // Mobile styles
+  // ===== Mobile Styles =====
   @media (max-width: 768px) {
     position: fixed;
     top: 0;
@@ -254,12 +256,7 @@ const Navbar = () => {
 
   // Prevent body scroll when menu is open
   useEffect(() => {
-    if (menuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-
+    document.body.style.overflow = menuOpen ? "hidden" : "unset";
     return () => {
       document.body.style.overflow = "unset";
     };
@@ -361,7 +358,7 @@ const Navbar = () => {
           </NavLinks>
         </Container>
       </Nav>
-      
+
       {/* Overlay for mobile */}
       <Overlay open={menuOpen} onClick={() => setMenuOpen(false)} />
     </>
