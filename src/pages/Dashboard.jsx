@@ -1,3 +1,4 @@
+// ==== Dashboard.js ====
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
@@ -138,13 +139,14 @@ const NeonButton = styled(motion.button)`
   }
 `;
 
-// ===== Bottom Floating Panel =====
+// ===== Fixed Bottom Floating Panel (centered on all screens) =====
 const BottomBox = styled(motion.div)`
   position: fixed;
-  left: 23%;
-  bottom: 12px;
+  left: 0%;
+  bottom: 16px;
   transform: translateX(-50%);
-  width: min(95%, 700px);
+  width: 90%;
+  max-width: 500px;
   padding: clamp(0.6rem, 1.5vw, 1rem);
   border-radius: 14px;
   background: rgba(0, 12, 30, 0.95);
@@ -156,6 +158,23 @@ const BottomBox = styled(motion.div)`
   backdrop-filter: blur(12px);
   box-shadow: 0 6px 20px rgba(0, 245, 160, 0.25);
   z-index: 100;
+
+  @media (max-width: 768px) {
+    bottom: 14px;
+    width: 92%;
+    max-width: 420px;
+  }
+
+  @media (max-width: 480px) {
+    bottom: 12px;
+    width: 95%;
+    max-width: 360px;
+  }
+
+  @media (min-width: 1024px) {
+    bottom: 24px;
+    max-width: 480px;
+  }
 `;
 
 const PillContainer = styled.div`
@@ -218,7 +237,6 @@ const Dashboard = () => {
   const [referrals, setReferrals] = useState(JSON.parse(localStorage.getItem("referrals") || "[]"));
   const [kycStatus, setKycStatus] = useState(localStorage.getItem("kycStatus") || "not_submitted");
 
-  // Countdown Timer
   useEffect(() => {
     const interval = setInterval(() => {
       if (isMining && lastClaimTime) {
@@ -239,7 +257,6 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, [isMining, lastClaimTime]);
 
-  // Auto Transfer Pending Tokens When KYC Approved
   useEffect(() => {
     const storedKyc = localStorage.getItem("kycStatus");
     if (storedKyc) setKycStatus(storedKyc);
@@ -373,7 +390,7 @@ const Dashboard = () => {
         </Card>
       </Grid>
 
-      {/* Bottom Panel */}
+      {/* Bottom Floating Panel */}
       <BottomBox initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }}>
         <PillContainer>
           <Pill>
