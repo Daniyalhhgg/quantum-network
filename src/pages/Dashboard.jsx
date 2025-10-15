@@ -142,11 +142,11 @@ const NeonButton = styled(motion.button)`
 // ===== Fixed Bottom Floating Panel (centered on all screens) =====
 const BottomBox = styled(motion.div)`
   position: fixed;
-  left: 0%;
-  bottom: 16px;
+  left: 7.2%;
+  bottom: 10px;
   transform: translateX(-50%);
-  width: 90%;
-  max-width: 500px;
+  width: 50%;
+  max-width: 300px;
   padding: clamp(0.6rem, 1.5vw, 1rem);
   border-radius: 14px;
   background: rgba(0, 12, 30, 0.95);
@@ -161,13 +161,13 @@ const BottomBox = styled(motion.div)`
 
   @media (max-width: 768px) {
     bottom: 14px;
-    width: 92%;
+    width: 70%;
     max-width: 420px;
   }
 
   @media (max-width: 480px) {
     bottom: 12px;
-    width: 95%;
+    width: 80.5%;
     max-width: 360px;
   }
 
