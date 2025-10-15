@@ -9,9 +9,9 @@ const fadeInDown = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const slideInRight = keyframes`
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+const slideInLeft = keyframes`
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 `;
 
 // ===== Styled Components =====
@@ -19,7 +19,7 @@ const Nav = styled.header`
   width: 100%;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 200;
   background: rgba(10, 15, 30, 0.95);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0, 245, 160, 0.15);
@@ -51,7 +51,7 @@ const Logo = styled(Link)`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   transition: opacity 0.2s;
-  z-index: 101;
+  z-index: 201;
 
   &:hover {
     opacity: 0.8;
@@ -69,7 +69,7 @@ const MenuButton = styled.button`
   border: none;
   background: none;
   cursor: pointer;
-  z-index: 101;
+  z-index: 201;
   padding: 8px;
   margin: -8px;
 
@@ -159,11 +159,11 @@ const NavLinks = styled.nav`
     }
   }
 
-  /* ===== Mobile Styles ===== */
+  /* ===== MOBILE STYLES ===== */
   @media (max-width: 768px) {
     position: fixed;
     top: 0;
-    right: 0;
+    left: 0; /* ✅ Now slides from LEFT */
     width: 80%;
     max-width: 320px;
     height: 100vh;
@@ -174,12 +174,13 @@ const NavLinks = styled.nav`
     justify-content: flex-start;
     padding: 80px 1.5rem 2rem;
     gap: 1.3rem;
-    transform: translateX(${(props) => (props.open ? "0" : "100%")});
+    transform: translateX(${(props) => (props.open ? "0" : "-100%")});
     transition: transform 0.3s ease-in-out;
-    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
-    border-left: 1px solid rgba(0, 245, 160, 0.2);
-    animation: ${slideInRight} 0.3s ease-out;
+    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.3);
+    border-right: 1px solid rgba(0, 245, 160, 0.2);
+    animation: ${slideInLeft} 0.3s ease-out;
     overflow-y: auto;
+    z-index: 200;
 
     a {
       font-size: 1.1rem;
@@ -211,11 +212,6 @@ const NavLinks = styled.nav`
       }
     }
   }
-
-  @media (max-width: 480px) {
-    width: 100%;
-    padding: 80px 1.5rem 2rem;
-  }
 `;
 
 const Overlay = styled.div`
@@ -225,9 +221,9 @@ const Overlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(6px);
-  z-index: 99;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(5px);
+  z-index: 150; /* ✅ below navbar, above content */
   transition: opacity 0.3s ease;
 
   @media (min-width: 769px) {
@@ -255,9 +251,9 @@ const Navbar = () => {
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "unset";
+    return () => (document.body.style.overflow = "unset");
   }, [menuOpen]);
 
-  // === FIX: Safely extract username string ===
   const getUsername = () => {
     if (typeof user?.username === "string") return user.username;
     if (typeof user?.user?.username === "string") return user.user.username;
@@ -270,11 +266,15 @@ const Navbar = () => {
     setMenuOpen(false);
   };
 
+  const handleLinkClick = () => {
+    setMenuOpen(false);
+  };
+
   return (
     <>
       <Nav>
         <Container>
-          <Logo to="/" onClick={() => setMenuOpen(false)}>
+          <Logo to="/" onClick={handleLinkClick}>
             ⚛ Quantum
           </Logo>
 
@@ -289,49 +289,25 @@ const Navbar = () => {
           </MenuButton>
 
           <NavLinks open={menuOpen}>
-            <Link
-              to="/"
-              className={location.pathname === "/" ? "active" : ""}
-              onClick={() => setMenuOpen(false)}
-            >
+            <Link to="/" className={location.pathname === "/" ? "active" : ""} onClick={handleLinkClick}>
               Home
             </Link>
 
             {user ? (
               <>
-                <Link
-                  to="/dashboard"
-                  className={location.pathname === "/dashboard" ? "active" : ""}
-                  onClick={() => setMenuOpen(false)}
-                >
+                <Link to="/dashboard" className={location.pathname === "/dashboard" ? "active" : ""} onClick={handleLinkClick}>
                   Dashboard
                 </Link>
-                <Link
-                  to="/wallet"
-                  className={location.pathname === "/wallet" ? "active" : ""}
-                  onClick={() => setMenuOpen(false)}
-                >
+                <Link to="/wallet" className={location.pathname === "/wallet" ? "active" : ""} onClick={handleLinkClick}>
                   Wallet
                 </Link>
-                <Link
-                  to="/trustcircle"
-                  className={location.pathname === "/trustcircle" ? "active" : ""}
-                  onClick={() => setMenuOpen(false)}
-                >
+                <Link to="/trustcircle" className={location.pathname === "/trustcircle" ? "active" : ""} onClick={handleLinkClick}>
                   Trust Circle
                 </Link>
-                <Link
-                  to="/marketplace"
-                  className={location.pathname === "/marketplace" ? "active" : ""}
-                  onClick={() => setMenuOpen(false)}
-                >
+                <Link to="/marketplace" className={location.pathname === "/marketplace" ? "active" : ""} onClick={handleLinkClick}>
                   Marketplace
                 </Link>
-                <Link
-                  to="/kyc"
-                  className={location.pathname === "/kyc" ? "active" : ""}
-                  onClick={() => setMenuOpen(false)}
-                >
+                <Link to="/kyc" className={location.pathname === "/kyc" ? "active" : ""} onClick={handleLinkClick}>
                   KYC
                 </Link>
 
@@ -344,19 +320,14 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Link to="/login" onClick={() => setMenuOpen(false)}>
-                  Login
-                </Link>
-                <Link to="/register" onClick={() => setMenuOpen(false)}>
-                  Register
-                </Link>
+                <Link to="/login" onClick={handleLinkClick}>Login</Link>
+                <Link to="/register" onClick={handleLinkClick}>Register</Link>
               </>
             )}
           </NavLinks>
         </Container>
       </Nav>
 
-      {/* Overlay for mobile */}
       <Overlay open={menuOpen} onClick={() => setMenuOpen(false)} />
     </>
   );
