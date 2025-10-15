@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom"; // ✅ Added import
 
 // ===== Animations =====
 const fadeInUp = keyframes`
@@ -118,12 +119,19 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate(); // ✅ Hook added for navigation
 
   const submit = (e) => {
     e.preventDefault();
+
     const user = { username: username || email.split("@")[0], email };
     localStorage.setItem("mock_user", JSON.stringify(user));
+
+    // (Optional) Temporarily simulate user registration
     login(user);
+
+    // ✅ Redirect to login page after registration
+    navigate("/login");
   };
 
   return (
