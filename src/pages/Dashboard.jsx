@@ -8,11 +8,15 @@ const Page = styled.div`
   min-height: 100vh;
   background: radial-gradient(circle at 20% 20%, #0b1224, #060b16 80%);
   color: #e6f1ff;
-  padding: 2rem 1rem 6rem;
+  padding: 1rem 0.5rem 7rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-family: "Inter", sans-serif;
+
+  @media (max-width: 480px) {
+    padding: 0.5rem 0.25rem 6rem;
+  }
 `;
 
 const Header = styled(motion.div)`
@@ -21,13 +25,26 @@ const Header = styled(motion.div)`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  padding: 1.2rem 1.5rem;
-  border-radius: 18px;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.2rem;
+  border-radius: 16px;
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(0, 245, 160, 0.08);
   box-shadow: 0 0 40px rgba(0, 245, 160, 0.08);
+
+  @media (max-width: 768px) {
+    padding: 0.8rem 1rem;
+    margin-bottom: 1rem;
+    flex-direction: column;
+    gap: 0.8rem;
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.7rem 0.8rem;
+    border-radius: 12px;
+  }
 `;
 
 const Title = styled.h1`
@@ -36,32 +53,78 @@ const Title = styled.h1`
   background: linear-gradient(90deg, #00f5a0, #00d9f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 1.6rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.4rem;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 1.3rem;
+  }
 `;
 
 const Balance = styled.div`
   font-size: 1.15rem;
   font-weight: 700;
   color: #bfffe6;
+
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
 `;
 
 const Grid = styled.div`
   width: 100%;
   max-width: 1100px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 0.8rem;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
 `;
 
 const Card = styled(motion.div)`
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 1.5rem;
+  border-radius: 14px;
+  padding: 1.3rem;
   backdrop-filter: blur(8px);
   transition: all 0.2s ease;
+  
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 30px rgba(0, 245, 160, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 0 25px rgba(0, 245, 160, 0.15);
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.1rem;
+    border-radius: 12px;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+    border-radius: 10px;
   }
 `;
 
@@ -69,62 +132,117 @@ const CardTitle = styled.div`
   color: #00f5a0;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  font-size: 1rem;
+
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+  }
 `;
 
 const CardValue = styled.div`
   font-size: 1.4rem;
   font-weight: 800;
   margin-bottom: 0.4rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.2rem;
+  }
 `;
 
 const SecondaryText = styled.div`
   color: #9fb7c7;
   font-size: 0.9rem;
   line-height: 1.4;
+  margin-bottom: 0.8rem;
+
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+
+  @media (max-width: 480px) {
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+  }
 `;
 
 const NeonButton = styled(motion.button)`
-  margin-top: 0.5rem;
-  padding: 0.45rem 0.9rem;
-  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   border: 1px solid #00f5a0;
   background: transparent;
   color: #00f5a0;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 0.85rem;
   cursor: pointer;
   letter-spacing: 0.3px;
   transition: all 0.15s ease;
+  flex: 1;
+  min-width: 80px;
+  white-space: nowrap;
+
   &:hover {
     background: #00f5a0;
     color: #05101a;
     box-shadow: 0 0 14px rgba(0, 245, 160, 0.5);
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.8rem;
+    min-width: 70px;
+    border-radius: 6px;
+  }
+
+  @media (max-width: 360px) {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.75rem;
+    min-width: 65px;
   }
 `;
 
 // ===== Footer (Compact Version) =====
 const BottomBox = styled(motion.div)`
   position: fixed;
-  left: 40%;
+  left: 50%;
   bottom: 12px;
   transform: translateX(-50%);
-  width: min(700px, 90%);
-  max-width: 700px;
-  padding: 10px 14px;
+  width: min(95%, 700px);
+  padding: 12px 16px;
   border-radius: 14px;
   background: rgba(0, 12, 30, 0.95);
   border: 1px solid rgba(0, 245, 160, 0.12);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   backdrop-filter: blur(12px);
   box-shadow: 0 6px 20px rgba(0, 245, 160, 0.25);
   z-index: 60;
 
-  @media (max-width: 600px) {
-    width: 95%;
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+    border-radius: 12px;
+    gap: 6px;
+  }
+
+  @media (max-width: 480px) {
     padding: 8px 10px;
+    border-radius: 10px;
+    bottom: 8px;
+    width: 97%;
   }
 `;
 
@@ -133,6 +251,11 @@ const PillContainer = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   gap: 6px;
+  width: 100%;
+
+  @media (max-width: 480px) {
+    gap: 4px;
+  }
 `;
 
 const Pill = styled.div`
@@ -140,13 +263,34 @@ const Pill = styled.div`
   border: 1px solid rgba(0, 245, 160, 0.15);
   border-radius: 8px;
   padding: 6px 10px;
-  min-width: 100px;
+  min-width: 90px;
+  flex: 1;
   font-size: 0.8rem;
   text-align: center;
   transition: all 0.2s ease;
+  
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 0 10px rgba(0, 245, 160, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    min-width: 80px;
+    padding: 5px 8px;
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 480px) {
+    min-width: 70px;
+    padding: 4px 6px;
+    font-size: 0.7rem;
+    border-radius: 6px;
+  }
+
+  @media (max-width: 360px) {
+    min-width: 65px;
+    padding: 3px 5px;
+    font-size: 0.65rem;
   }
 `;
 
@@ -154,11 +298,28 @@ const PillTitle = styled.div`
   color: #9fb7c7;
   font-size: 0.75rem;
   margin-bottom: 2px;
+
+  @media (max-width: 480px) {
+    font-size: 0.7rem;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 0.65rem;
+  }
 `;
 
 const PillValue = styled.div`
   font-weight: 700;
   color: #bfffe6;
+  font-size: 0.85rem;
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 0.75rem;
+  }
 `;
 
 const Actions = styled.div`
@@ -166,6 +327,29 @@ const Actions = styled.div`
   flex-wrap: wrap;
   gap: 6px;
   justify-content: center;
+  width: 100%;
+
+  @media (max-width: 480px) {
+    gap: 4px;
+  }
+`;
+
+const ActionButton = styled(NeonButton)`
+  flex: 1;
+  min-width: 100px;
+  margin: 0;
+
+  @media (max-width: 480px) {
+    min-width: 80px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 360px) {
+    min-width: 70px;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.7rem;
+  }
 `;
 
 // ===== Dashboard Component =====
@@ -187,7 +371,7 @@ const Dashboard = () => {
         const now = Date.now();
         const diff = 24 * 60 * 60 * 1000 - (now - lastClaimTime);
         if (diff <= 0) {
-          setCountdown("Ready to Claim!");
+          setCountdown("Ready!");
           setIsMining(false);
           localStorage.setItem("isMining", "false");
         } else {
@@ -271,52 +455,105 @@ const Dashboard = () => {
 
   return (
     <Page>
-      <Header initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+      <Header 
+        initial={{ opacity: 0, y: -15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.4 }}
+      >
         <Title>Quantum Dashboard ⚡</Title>
         <Balance>{balance.toFixed(3)} QNT</Balance>
       </Header>
 
       <Grid>
-        <Card>
+        {/* Mining Card */}
+        <Card
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
           <CardTitle>Mining</CardTitle>
           <CardValue>{isMining ? "Running" : "Stopped"}</CardValue>
-          <SecondaryText>Earn 1 QNT every 24 hours of mining.</SecondaryText>
-          {!isMining && <NeonButton onClick={startMining}>Start Mining</NeonButton>}
-          {isMining && <NeonButton onClick={claimReward}>{countdown === "Ready to Claim!" ? "Claim Reward" : countdown}</NeonButton>}
+          <SecondaryText>
+            Earn 1 QNT every 24 hours of mining.
+          </SecondaryText>
+          <ButtonGroup>
+            {!isMining && (
+              <NeonButton onClick={startMining}>
+                Start Mining
+              </NeonButton>
+            )}
+            {isMining && (
+              <NeonButton onClick={claimReward}>
+                {countdown === "Ready!" ? "Claim Reward" : countdown}
+              </NeonButton>
+            )}
+          </ButtonGroup>
         </Card>
 
-        <Card>
+        {/* Referral Program Card */}
+        <Card
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
           <CardTitle>Referral Program</CardTitle>
           <SecondaryText>
             Level 1 → 10 QNT <br />
             Level 2 → 9 QNT <br />
             Level 3 → 7 QNT
           </SecondaryText>
-          <NeonButton onClick={() => addReferral(1)}>Add Level 1</NeonButton>
-          <NeonButton onClick={() => addReferral(2)}>Add Level 2</NeonButton>
-          <NeonButton onClick={() => addReferral(3)}>Add Level 3</NeonButton>
+          <ButtonGroup>
+            <NeonButton onClick={() => addReferral(1)}>Level 1</NeonButton>
+            <NeonButton onClick={() => addReferral(2)}>Level 2</NeonButton>
+            <NeonButton onClick={() => addReferral(3)}>Level 3</NeonButton>
+          </ButtonGroup>
         </Card>
 
-        <Card>
+        {/* KYC Status Card */}
+        <Card
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
           <CardTitle>KYC Status</CardTitle>
-          <CardValue style={{ color: kycStatus === "approved" ? "#00f5a0" : kycStatus === "pending" ? "#ffc107" : "#ff6b6b" }}>
-            {kycStatus}
+          <CardValue 
+            style={{ 
+              color: kycStatus === "approved" ? "#00f5a0" : 
+                     kycStatus === "pending" ? "#ffc107" : "#ff6b6b",
+              fontSize: kycStatus.length > 12 ? '1.1rem' : '1.4rem'
+            }}
+          >
+            {kycStatus.charAt(0).toUpperCase() + kycStatus.slice(1)}
           </CardValue>
-          <NeonButton onClick={() => navigate("/kyc")}>{kycStatus === "approved" ? "View KYC" : "Complete KYC"}</NeonButton>
+          <NeonButton onClick={() => navigate("/kyc")}>
+            {kycStatus === "approved" ? "View KYC" : "Complete KYC"}
+          </NeonButton>
         </Card>
 
-        <Card>
+        {/* Referral Stats Card */}
+        <Card
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
           <CardTitle>Referral Stats</CardTitle>
           <CardValue>{referrals.length} Joined</CardValue>
-          <SecondaryText>Total Earned: {referrals.reduce((a, r) => a + (r.reward || 0), 0)} QNT</SecondaryText>
+          <SecondaryText>
+            Total Earned: {referrals.reduce((a, r) => a + (r.reward || 0), 0)} QNT
+          </SecondaryText>
         </Card>
       </Grid>
 
-      <BottomBox initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      {/* Bottom Stats Panel */}
+      <BottomBox 
+        initial={{ opacity: 0, y: 25 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
         <PillContainer>
           <Pill>
             <PillTitle>Status</PillTitle>
-            <PillValue>{isMining ? "Mining Active" : "Idle"}</PillValue>
+            <PillValue>{isMining ? "Mining" : "Idle"}</PillValue>
           </Pill>
 
           <Pill>
@@ -325,19 +562,26 @@ const Dashboard = () => {
           </Pill>
 
           <Pill>
-            <PillTitle>Pending Tokens</PillTitle>
+            <PillTitle>Pending</PillTitle>
             <PillValue>{pending.toFixed(3)}</PillValue>
           </Pill>
 
           <Pill>
             <PillTitle>KYC</PillTitle>
-            <PillValue>{kycStatus}</PillValue>
+            <PillValue>
+              {kycStatus === "approved" ? "✓" : 
+               kycStatus === "pending" ? "⏳" : "✗"}
+            </PillValue>
           </Pill>
         </PillContainer>
 
         <Actions>
-          <NeonButton onClick={() => navigate("/wallet", { state: { openSendModal: true } })}>➤ Send</NeonButton>
-          <NeonButton onClick={() => navigate("/wallet")}>⇣ Receive</NeonButton>
+          <ActionButton onClick={() => navigate("/wallet", { state: { openSendModal: true } })}>
+            ➤ Send
+          </ActionButton>
+          <ActionButton onClick={() => navigate("/wallet")}>
+            ⇣ Receive
+          </ActionButton>
         </Actions>
       </BottomBox>
     </Page>

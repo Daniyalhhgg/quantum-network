@@ -1,11 +1,269 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import styled, { keyframes } from "styled-components";
 import { AuthContext } from "../../context/AuthContext";
 
+// ===== Animations =====
+const fadeInDown = keyframes`
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const slideInRight = keyframes`
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+`;
+
+// ===== Styled Components =====
+const Nav = styled.header`
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 15, 30, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 245, 160, 0.15);
+  box-shadow: 0 2px 10px rgba(0, 245, 160, 0.05);
+  animation: ${fadeInDown} 0.5s ease forwards;
+`;
+
+const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.7rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    padding: 0.7rem 1rem;
+  }
+`;
+
+const Logo = styled(Link)`
+  font-size: 1.6rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  background: linear-gradient(90deg, #00f5a0, #00d9f5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: opacity 0.2s;
+  z-index: 101;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.4rem;
+  }
+`;
+
+const MenuButton = styled.button`
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  z-index: 101;
+  padding: 8px;
+  margin: -8px;
+
+  span {
+    width: 24px;
+    height: 2px;
+    background: #bfffe6;
+    border-radius: 3px;
+    transition: 0.3s;
+  }
+
+  &.active span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  &.active span:nth-child(2) {
+    opacity: 0;
+  }
+  &.active span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+`;
+
+const NavLinks = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  transition: 0.3s;
+
+  a {
+    color: #bfffe6;
+    font-weight: 500;
+    text-decoration: none;
+    position: relative;
+    transition: 0.25s;
+    padding: 8px 4px;
+    white-space: nowrap;
+
+    &::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 2px;
+      left: 0;
+      bottom: -2px;
+      background: #00f5a0;
+      transition: width 0.3s;
+    }
+
+    &:hover::after,
+    &.active::after {
+      width: 100%;
+    }
+  }
+
+  .user-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-left: 1rem;
+
+    .username {
+      font-weight: 600;
+      color: #00d9f5;
+      white-space: nowrap;
+    }
+
+    button.logout {
+      background: transparent;
+      border: 1px solid #00f5a0;
+      color: #00f5a0;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.25s;
+      white-space: nowrap;
+
+      &:hover {
+        background: #00f5a0;
+        color: #05101a;
+        box-shadow: 0 0 10px rgba(0, 245, 160, 0.5);
+      }
+    }
+  }
+
+  // Mobile styles
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 280px;
+    height: 100vh;
+    background: rgba(5, 10, 25, 0.98);
+    backdrop-filter: blur(20px);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 80px 2rem 2rem;
+    gap: 1.5rem;
+    transform: translateX(${(props) => (props.open ? "0" : "100%")});
+    transition: transform 0.3s ease-in-out;
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
+    border-left: 1px solid rgba(0, 245, 160, 0.2);
+    animation: ${slideInRight} 0.3s ease-out;
+
+    a {
+      font-size: 1.1rem;
+      padding: 12px 8px;
+      width: 100%;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .user-controls {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-left: 0;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      width: 100%;
+
+      .username {
+        font-size: 1.1rem;
+      }
+
+      button.logout {
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    padding: 80px 1.5rem 2rem;
+  }
+`;
+
+const Overlay = styled.div`
+  display: ${(props) => (props.open ? "block" : "none")};
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 99;
+  transition: opacity 0.3s ease;
+
+  @media (min-width: 769px) {
+    display: none;
+  }
+`;
+
+// ===== Navbar Component =====
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext) || {};
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+
+  // Close menu when route changes
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location]);
+
+  // Close menu on escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
+
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [menuOpen]);
 
   const getUsername = () => {
     if (typeof user?.username === "string") return user.username;
@@ -13,187 +271,30 @@ const Navbar = () => {
     return "User";
   };
 
+  const handleLogout = () => {
+    logout?.();
+    setMenuOpen(false);
+  };
+
   return (
     <>
-      <style>{`
-        /* Navbar Styles */
-        .quantum-navbar {
-          width: 100%;
-          position: sticky;
-          top: 0;
-          z-index: 100;
-          background: rgba(10, 15, 30, 0.85);
-          backdrop-filter: blur(10px);
-          border-bottom: 1px solid rgba(0, 245, 160, 0.15);
-          box-shadow: 0 2px 10px rgba(0, 245, 160, 0.05);
-        }
+      <Nav>
+        <Container>
+          <Logo to="/" onClick={() => setMenuOpen(false)}>
+            ⚛ Quantum
+          </Logo>
 
-        .navbar-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0.7rem 1.5rem;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .navbar-logo {
-          font-size: 1.6rem;
-          font-weight: 800;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          text-decoration: none;
-          background: linear-gradient(90deg, #00f5a0, #00d9f5);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          transition: opacity 0.2s;
-        }
-
-        .navbar-logo:hover {
-          opacity: 0.8;
-        }
-
-        .menu-btn {
-          display: none;
-          flex-direction: column;
-          gap: 5px;
-          border: none;
-          background: none;
-          cursor: pointer;
-        }
-
-        .menu-btn span {
-          width: 24px;
-          height: 2px;
-          background: #bfffe6;
-          border-radius: 3px;
-          transition: 0.3s;
-        }
-
-        .menu-btn.active span:nth-child(1) {
-          transform: translateY(7px) rotate(45deg);
-        }
-        .menu-btn.active span:nth-child(2) {
-          opacity: 0;
-        }
-        .menu-btn.active span:nth-child(3) {
-          transform: translateY(-7px) rotate(-45deg);
-        }
-
-        .nav-links {
-          display: flex;
-          align-items: center;
-          gap: 1.2rem;
-          transition: 0.3s;
-        }
-
-        .nav-links a {
-          color: #bfffe6;
-          font-weight: 500;
-          text-decoration: none;
-          transition: 0.25s;
-          position: relative;
-        }
-
-        .nav-links a::after {
-          content: "";
-          position: absolute;
-          width: 0;
-          height: 2px;
-          left: 0;
-          bottom: -2px;
-          background: #00f5a0;
-          transition: width 0.3s;
-        }
-
-        .nav-links a:hover::after,
-        .nav-links a.active::after {
-          width: 100%;
-        }
-
-        .nav-user-controls {
-          display: flex;
-          align-items: center;
-          gap: 0.8rem;
-          margin-left: 1rem;
-        }
-
-        .nav-username {
-          font-weight: 600;
-          color: #00d9f5;
-        }
-
-        .logout-btn {
-          background: transparent;
-          border: 1px solid #00f5a0;
-          color: #00f5a0;
-          padding: 4px 10px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-weight: 600;
-          transition: 0.25s;
-        }
-
-        .logout-btn:hover {
-          background: #00f5a0;
-          color: #05101a;
-          box-shadow: 0 0 10px rgba(0, 245, 160, 0.5);
-        }
-
-        /* Mobile */
-        @media (max-width: 768px) {
-          .menu-btn {
-            display: flex;
-          }
-
-          .nav-links {
-            position: absolute;
-            top: 60px;
-            right: 0;
-            background: rgba(5, 10, 25, 0.95);
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 1rem 1.2rem;
-            border-radius: 10px 0 0 10px;
-            transform: translateX(110%);
-          }
-
-          .nav-links.open {
-            transform: translateX(0);
-          }
-
-          .nav-links a {
-            display: block;
-            padding: 0.4rem 0;
-          }
-
-          .nav-user-controls {
-            flex-direction: column;
-            width: 100%;
-          }
-        }
-      `}</style>
-
-      <header className="quantum-navbar">
-        <div className="navbar-container">
-          {/* Logo */}
-          <Link to="/" className="navbar-logo" onClick={() => setMenuOpen(false)}>
-            ⚛ <span>Quantum</span>
-          </Link>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            className={`menu-btn ${menuOpen ? "active" : ""}`}
+          <MenuButton
+            className={menuOpen ? "active" : ""}
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
           >
             <span />
             <span />
             <span />
-          </button>
+          </MenuButton>
 
-          {/* Navigation Links */}
-          <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
+          <NavLinks open={menuOpen}>
             <Link
               to="/"
               className={location.pathname === "/" ? "active" : ""}
@@ -201,7 +302,8 @@ const Navbar = () => {
             >
               Home
             </Link>
-            {user && (
+
+            {user ? (
               <>
                 <Link
                   to="/dashboard"
@@ -238,9 +340,15 @@ const Navbar = () => {
                 >
                   KYC
                 </Link>
+
+                <div className="user-controls">
+                  <span className="username">Hi, {getUsername()}</span>
+                  <button className="logout" onClick={handleLogout}>
+                    Logout
+                  </button>
+                </div>
               </>
-            )}
-            {!user && (
+            ) : (
               <>
                 <Link to="/login" onClick={() => setMenuOpen(false)}>
                   Login
@@ -250,18 +358,12 @@ const Navbar = () => {
                 </Link>
               </>
             )}
-
-            {user && (
-              <div className="nav-user-controls">
-                <span className="nav-username">Hi, {getUsername()}</span>
-                <button className="logout-btn" onClick={logout}>
-                  Logout
-                </button>
-              </div>
-            )}
-          </nav>
-        </div>
-      </header>
+          </NavLinks>
+        </Container>
+      </Nav>
+      
+      {/* Overlay for mobile */}
+      <Overlay open={menuOpen} onClick={() => setMenuOpen(false)} />
     </>
   );
 };

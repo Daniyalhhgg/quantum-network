@@ -1,106 +1,111 @@
-
 import React, { useContext, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AuthContext } from "../context/AuthContext";
 
 // ===== Animations =====
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(15px); }
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const pulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-  100% { transform: scale(1); }
+const pulseGlow = keyframes`
+  0% { box-shadow: 0 0 6px #00f5a0; }
+  50% { box-shadow: 0 0 20px #00d9f5; }
+  100% { box-shadow: 0 0 6px #00f5a0; }
 `;
 
 // ===== Styled Components =====
 const Section = styled.section`
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  font-family: "Poppins", sans-serif;
-  color: #fff;
-  padding: 40px 20px;
+  align-items: center;
+  background: radial-gradient(circle at top, #081225, #0b132b);
+  font-family: "Inter", sans-serif;
+  padding: 2rem 1rem;
 `;
 
 const Title = styled.h2`
   font-size: 2.5rem;
-  margin-bottom: 20px;
-  background: linear-gradient(90deg, #00d4ff, #00ff88);
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 2rem;
+  background: linear-gradient(90deg, #00f5a0, #00d9f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-align: center;
-  animation: ${fadeIn} 1s ease forwards;
+  animation: ${fadeInUp} 0.8s ease forwards;
 
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     font-size: 2rem;
   }
 `;
 
-const Form = styled.form`
+const FormCard = styled.form`
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  padding: 40px;
+  backdrop-filter: blur(15px);
+  padding: 2.5rem 2rem;
   border-radius: 20px;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 8px 20px rgba(0, 255, 136, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: ${fadeIn} 1s ease forwards;
+  box-shadow: 0 0 30px rgba(0, 245, 160, 0.2);
+  border: 1px solid rgba(0, 245, 160, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  animation: ${fadeInUp} 1s ease forwards;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 14px 18px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-  border: none;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 245, 160, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
   font-size: 1rem;
-  color: #0f2027;
   outline: none;
-  background: #fff;
-  transition: box-shadow 0.3s ease;
+  transition: 0.3s;
 
   &:focus {
-    box-shadow: 0 0 10px #00ff88;
+    border-color: #00f5a0;
+    box-shadow: 0 0 10px #00f5a0;
   }
 `;
 
 const Button = styled.button`
-  width: 100%;
   padding: 14px;
   font-size: 1.1rem;
+  font-weight: bold;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 600;
-  color: #0f2027;
-  background: linear-gradient(90deg, #00d4ff, #00ff88);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: ${pulse} 3s infinite;
+  color: #0b132b;
+  background: linear-gradient(90deg, #00f5a0, #00d9f5);
+  transition: transform 0.2s, box-shadow 0.3s;
+  animation: ${pulseGlow} 3s infinite;
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 0 15px #00ff88;
+    box-shadow: 0 0 15px #00f5a0;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 1rem;
+    padding: 12px;
   }
 `;
 
 const FooterText = styled.p`
-  margin-top: 20px;
-  color: #ccc;
-  font-size: 0.95rem;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
   text-align: center;
-  animation: ${fadeIn} 1s ease forwards;
+  color: #aaa;
+  animation: ${fadeInUp} 1s ease forwards;
 
   a {
-    color: #00ff88;
-    text-decoration: none;
+    color: #00f5a0;
     font-weight: 600;
+    text-decoration: none;
     &:hover {
       text-decoration: underline;
     }
@@ -112,6 +117,7 @@ const Register = () => {
   const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   const submit = (e) => {
     e.preventDefault();
@@ -123,7 +129,7 @@ const Register = () => {
   return (
     <Section>
       <Title>Create Your Account</Title>
-      <Form onSubmit={submit}>
+      <FormCard onSubmit={submit}>
         <Input
           placeholder="Username"
           value={username}
@@ -137,9 +143,15 @@ const Register = () => {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <Input type="password" placeholder="Password" required />
+        <Input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         <Button type="submit">Create Account</Button>
-      </Form>
+      </FormCard>
       <FooterText>
         Already have an account? <a href="/login">Log In</a>
       </FooterText>

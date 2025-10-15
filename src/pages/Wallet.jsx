@@ -35,6 +35,11 @@ const Title = styled(motion.h2)`
   background: linear-gradient(90deg, #00f5a0, #00d9f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+
+  @media (max-width: 600px) {
+    font-size: 1.6rem;
+    text-align: center;
+  }
 `;
 
 const CardGrid = styled.div`
@@ -44,6 +49,10 @@ const CardGrid = styled.div`
   width: 100%;
   max-width: 950px;
   margin-bottom: 2.5rem;
+
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const Card = styled(motion.div)`
@@ -57,18 +66,30 @@ const Card = styled(motion.div)`
   border: 1px solid rgba(0, 245, 160, 0.15);
   backdrop-filter: blur(8px);
   animation: ${glow} 3s infinite;
+
+  @media (max-width: 600px) {
+    padding: 1rem;
+  }
 `;
 
 const CardTitle = styled.h3`
   font-size: 1.2rem;
   color: #00f5a0;
   margin-bottom: 0.5rem;
+
+  @media (max-width: 600px) {
+    font-size: 1rem;
+  }
 `;
 
 const CardValue = styled.p`
   font-size: 1.6rem;
   font-weight: bold;
   color: #bfffe6;
+
+  @media (max-width: 600px) {
+    font-size: 1.3rem;
+  }
 `;
 
 const Button = styled.button`
@@ -81,9 +102,14 @@ const Button = styled.button`
   cursor: pointer;
   margin-top: 1rem;
   transition: transform 0.2s, box-shadow 0.2s;
+
   &:hover {
     transform: scale(1.05);
     box-shadow: 0 0 20px rgba(0, 245, 160, 0.5);
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
   }
 `;
 
@@ -94,6 +120,10 @@ const TransactionList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+
+  @media (max-width: 600px) {
+    max-width: 100%;
+  }
 `;
 
 const TransactionCard = styled(motion.div)`
@@ -104,6 +134,12 @@ const TransactionCard = styled(motion.div)`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 `;
 
 const ModalOverlay = styled.div`
@@ -180,7 +216,6 @@ const Wallet = () => {
   const [address, setAddress] = useState("");
   const [kycStatus, setKycStatus] = useState(localStorage.getItem("kycStatus") || "not_submitted");
 
-  // Fetch or generate wallet address
   useEffect(() => {
     let saved = localStorage.getItem("walletAddress");
     if (!saved) {
@@ -190,7 +225,6 @@ const Wallet = () => {
     setAddress(saved);
   }, []);
 
-  // Sync balance & pending every second
   useEffect(() => {
     const interval = setInterval(() => {
       const storedBalance = parseFloat(localStorage.getItem("balance") || "0");
@@ -201,7 +235,6 @@ const Wallet = () => {
       setPending(storedPending);
       setKycStatus(storedKYC);
 
-      // Auto-transfer pending to balance when KYC approved
       if (storedKYC === "approved" && storedPending > 0) {
         const total = storedBalance + storedPending;
         localStorage.setItem("balance", total.toString());
@@ -214,7 +247,6 @@ const Wallet = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Send tokens
   const handleSend = () => {
     if (!recipient || !amount || parseFloat(amount) > balance) {
       alert("⚠️ Invalid recipient or amount!");

@@ -3,24 +3,23 @@ import { Link } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 
 // ===== Animations =====
-const fadeIn = keyframes`
+const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const pulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+const pulseGlow = keyframes`
+  0%, 100% { box-shadow: 0 0 6px #00f5a0; }
+  50% { box-shadow: 0 0 20px #00d9f5; }
 `;
 
 // ===== Styled Components =====
 const Section = styled.section`
-  font-family: "Poppins", sans-serif;
+  font-family: "Inter", sans-serif;
   color: #fff;
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  background: radial-gradient(circle at top, #081225, #0b132b);
   min-height: 100vh;
-  padding: 80px 20px;
+  padding: 6rem 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -29,14 +28,14 @@ const Section = styled.section`
 
 const Hero = styled.div`
   max-width: 900px;
-  animation: ${fadeIn} 1s ease forwards;
+  animation: ${fadeInUp} 1s ease forwards;
 `;
 
 const Title = styled.h1`
   font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-  background: linear-gradient(90deg, #00d4ff, #00ff88);
+  font-weight: 800;
+  margin-bottom: 1rem;
+  background: linear-gradient(90deg, #00f5a0, #00d9f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
@@ -47,9 +46,10 @@ const Title = styled.h1`
 
 const Subtitle = styled.p`
   font-size: 1.2rem;
-  color: #e0e0e0;
-  margin-bottom: 30px;
+  color: #ccc;
+  margin-bottom: 2rem;
   line-height: 1.6;
+
   @media (max-width: 768px) {
     font-size: 1rem;
   }
@@ -63,19 +63,20 @@ const CTA = styled.div`
 `;
 
 const Button = styled(Link)`
-  background: ${(props) => (props.ghost ? "transparent" : "linear-gradient(90deg,#00d4ff,#00ff88)")};
-  color: ${(props) => (props.ghost ? "#00ff88" : "#0f2027")};
-  border: 2px solid #00ff88;
-  padding: 12px 28px;
+  background: ${(props) =>
+    props.ghost ? "transparent" : "linear-gradient(90deg,#00f5a0,#00d9f5)"};
+  color: ${(props) => (props.ghost ? "#00f5a0" : "#0b132b")};
+  border: 2px solid #00f5a0;
+  padding: 14px 32px;
   border-radius: 50px;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
   transition: all 0.3s ease;
-  animation: ${pulse} 3s infinite;
+  animation: ${pulseGlow} 3s infinite;
 
   &:hover {
-    background: #00ff88;
-    color: #0f2027;
+    background: #00f5a0;
+    color: #0b132b;
     transform: translateY(-3px);
   }
 `;
@@ -84,40 +85,40 @@ const Features = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 30px;
-  margin-top: 80px;
+  margin-top: 6rem;
   width: 100%;
   max-width: 1000px;
 `;
 
 const Feature = styled.div`
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
-  padding: 30px;
-  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  backdrop-filter: blur(15px);
   transition: transform 0.3s ease, background 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: ${fadeIn} 1.5s ease forwards;
+  border: 1px solid rgba(0, 245, 160, 0.2);
+  animation: ${fadeInUp} 1.5s ease forwards;
 
   &:hover {
     transform: translateY(-8px);
-    background: rgba(0, 255, 136, 0.1);
+    background: rgba(0, 245, 160, 0.1);
   }
 
   h3 {
-    color: #00ff88;
-    margin-bottom: 10px;
+    color: #00f5a0;
+    margin-bottom: 0.8rem;
     font-size: 1.3rem;
   }
 
   p {
-    color: #d4d4d4;
+    color: #ccc;
     line-height: 1.5;
   }
 `;
 
 const Footer = styled.footer`
-  margin-top: 80px;
-  color: #aaa;
+  margin-top: 6rem;
+  color: #888;
   font-size: 0.9rem;
   text-align: center;
 `;

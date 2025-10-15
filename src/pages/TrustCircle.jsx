@@ -27,6 +27,10 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   animation: ${fadeIn} 0.8s ease;
+
+  @media (max-width: 600px) {
+    padding: 2rem 1rem;
+  }
 `;
 
 const Title = styled(motion.h2)`
@@ -38,6 +42,10 @@ const Title = styled(motion.h2)`
   background: linear-gradient(90deg, #00f5a0, #00d9f5, #0099ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+
+  @media (max-width: 600px) {
+    font-size: 1.8rem;
+  }
 `;
 
 const Section = styled.div`
@@ -50,6 +58,10 @@ const Section = styled.div`
   border: 1px solid rgba(0, 245, 160, 0.3);
   padding: 2rem;
   box-shadow: 0 0 20px rgba(0, 245, 160, 0.15);
+
+  @media (max-width: 600px) {
+    padding: 1rem;
+  }
 `;
 
 const SectionHeader = styled.h3`
@@ -57,12 +69,21 @@ const SectionHeader = styled.h3`
   font-weight: 600;
   margin-bottom: 1.5rem;
   color: #00f5a0;
+
+  @media (max-width: 600px) {
+    font-size: 1.1rem;
+    text-align: center;
+  }
 `;
 
 const CircleGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.8rem;
+
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const CircleCard = styled(motion.div)`
@@ -76,6 +97,10 @@ const CircleCard = styled(motion.div)`
   flex-direction: column;
   gap: 1rem;
   transition: all 0.3s ease;
+
+  @media (max-width: 600px) {
+    padding: 1rem;
+  }
 `;
 
 const CircleName = styled.h3`
@@ -85,6 +110,10 @@ const CircleName = styled.h3`
   background: linear-gradient(90deg, #00f5a0, #00d9f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+
+  @media (max-width: 600px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const MembersList = styled.div`
@@ -107,9 +136,16 @@ const MemberAvatar = styled.div`
   font-size: 1rem;
   font-weight: bold;
   transition: all 0.2s ease;
+
   &:hover {
     background: rgba(0, 245, 160, 0.3);
     transform: scale(1.1);
+  }
+
+  @media (max-width: 600px) {
+    width: 35px;
+    height: 35px;
+    font-size: 0.85rem;
   }
 `;
 
@@ -123,9 +159,15 @@ const AttestButton = styled(motion.button)`
   cursor: pointer;
   margin-top: auto;
   transition: transform 0.2s ease;
+
   &:hover {
     transform: scale(1.08);
     box-shadow: 0 0 15px #00f5a0;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
   }
 `;
 
