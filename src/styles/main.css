@@ -1,0 +1,97 @@
+/* 🌐 Navbar Styling */
+.navbar {
+  background: #0a0f1f;
+  color: #fff;
+  padding: 0.8rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #61dafb;
+  text-decoration: none;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.nav-right a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-right a:hover {
+  color: #61dafb;
+}
+
+.nav-user {
+  font-weight: 600;
+  color: #a0e7ff;
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid #61dafb;
+  color: #61dafb;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #61dafb;
+  color: #0a0f1f;
+}
+
+/* 📱 Mobile Navbar */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: #61dafb;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-right {
+    display: none;
+    flex-direction: column;
+    background: #0a0f1f;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 220px;
+    padding: 1rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-right.open {
+    display: flex;
+  }
+
+  .nav-right a,
+  .logout-btn {
+    width: 100%;
+    text-align: left;
+  }
+}
