@@ -1,169 +1,366 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom"; // ✅ Added import
+import { useNavigate, useLocation } from "react-router-dom";
 
-// ===== Animations =====
+// ===== ANIMATIONS =====
 const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const pulseGlow = keyframes`
-  0% { box-shadow: 0 0 6px #00f5a0; }
-  50% { box-shadow: 0 0 20px #00d9f5; }
-  100% { box-shadow: 0 0 6px #00f5a0; }
+const pulse = keyframes`
+  0%, 100% { box-shadow: 0 0 15px rgba(0, 245, 160, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(0, 245, 160, 0.9); }
 `;
 
-// ===== Styled Components =====
+const modalPop = keyframes`
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+`;
+
+const confettiFall = keyframes`
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+`;
+
+// ===== STYLED COMPONENTS =====
 const Section = styled.section`
   min-height: 100vh;
+  background: radial-gradient(circle at 20% 80%, #0a0e1f, #050812);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: radial-gradient(circle at top, #081225, #0b132b);
-  font-family: "Inter", sans-serif;
   padding: 2rem 1rem;
+  font-family: "Inter", sans-serif;
+  position: relative;
+  overflow: hidden;
 `;
 
 const Title = styled.h2`
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
   text-align: center;
-  margin-bottom: 2rem;
-  background: linear-gradient(90deg, #00f5a0, #00d9f5);
+  background: linear-gradient(90deg, #00f5a0, #00d9f5, #8a2be2);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: ${fadeInUp} 0.8s ease forwards;
-
-  @media (max-width: 600px) {
-    font-size: 2rem;
-  }
+  margin-bottom: 2rem;
+  animation: ${fadeInUp} 0.9s ease-out;
 `;
 
 const FormCard = styled.form`
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(15px);
-  padding: 2.5rem 2rem;
+  background: rgba(15, 25, 50, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 245, 160, 0.3);
   border-radius: 20px;
+  padding: 2.5rem 2rem;
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 0 30px rgba(0, 245, 160, 0.2);
-  border: 1px solid rgba(0, 245, 160, 0.2);
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  animation: ${fadeInUp} 1s ease forwards;
+  max-width: 420px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  animation: ${fadeInUp} 1s ease-out;
+  z-index: 10;
+`;
+
+const InputGroup = styled.div`
+  position: relative;
+  margin-bottom: 1.2rem;
 `;
 
 const Input = styled.input`
-  padding: 12px 16px;
+  width: 100%;
+  padding: 14px 16px;
   border-radius: 12px;
-  border: 1px solid rgba(0, 245, 160, 0.3);
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 245, 160, 0.4);
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
   font-size: 1rem;
   outline: none;
-  transition: 0.3s;
+  transition: all 0.3s ease;
 
-  &:focus {
-    border-color: #00f5a0;
-    box-shadow: 0 0 10px #00f5a0;
-  }
+  &::placeholder { color: #88aabb; }
+  &:focus { border-color: #00f5a0; box-shadow: 0 0 15px rgba(0, 245, 160, 0.4); }
 `;
 
-const Button = styled.button`
-  padding: 14px;
+const Label = styled.label`
+  position: absolute;
+  left: 16px;
+  top: -10px;
+  background: #0a0e1f;
+  padding: 0 8px;
+  font-size: 0.85rem;
+  color: #00f5a0;
+  font-weight: 600;
+`;
+
+const ReferralBox = styled.div`
+  background: rgba(0, 245, 160, 0.15);
+  border: 1px dashed #00f5a0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-align: center;
+  font-weight: 600;
+  color: #00f5a0;
+  font-size: 0.95rem;
+  margin: 1rem 0;
+  animation: ${pulse} 3s infinite;
+`;
+
+const SubmitButton = styled.button`
+  width: 100%;
+  padding: 16px;
+  margin-top: 1rem;
   font-size: 1.1rem;
-  font-weight: bold;
+  font-weight: 800;
+  color.  color: #0b132b;
+  background: linear-gradient(90deg, #00f5a0, #00d9f5);
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  color: #0b132b;
-  background: linear-gradient(90deg, #00f5a0, #00d9f5);
-  transition: transform 0.2s, box-shadow 0.3s;
-  animation: ${pulseGlow} 3s infinite;
+  transition: all 0.3s ease;
+  animation: ${pulse} 4s infinite;
 
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 15px #00f5a0;
-  }
-
-  @media (max-width: 600px) {
-    font-size: 1rem;
-    padding: 12px;
-  }
+  &:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0, 245, 160, 0.5); }
+  &:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 `;
 
-const FooterText = styled.p`
-  margin-top: 1.5rem;
-  font-size: 0.9rem;
+const Footer = styled.div`
+  margin-top: 2rem;
   text-align: center;
-  color: #aaa;
-  animation: ${fadeInUp} 1s ease forwards;
-
-  a {
-    color: #00f5a0;
-    font-weight: 600;
-    text-decoration: none;
-    &:hover {
-      text-decoration: underline;
-    }
-  }
+  color: #99aabb;
+  font-size: 0.95rem;
+  z-index: 10;
+  a { color: #00f5a0; font-weight: 700; text-decoration: none; &:hover { text-decoration: underline; } }
 `;
 
-// ===== Component =====
+// ===== SUCCESS MODAL (Same as Login) =====
+const SuccessModal = styled.div`
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(5, 8, 18, 0.95);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: ${fadeInUp} 0.6s ease-out;
+`;
+
+const ModalContent = styled.div`
+  background: rgba(15, 25, 50, 0.9);
+  border: 2px solid #00f5a0;
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  text-align: center;
+  max-width: 380px;
+  width: 90%;
+  animation: ${modalPop} 0.7s ease-out;
+  box-shadow: 0 0 60px rgba(0, 245, 160, 0.6);
+  position: relative;
+  overflow: hidden;
+`;
+
+const SuccessTitle = styled.h2`
+  font-size: 2.3rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, #00f5a0, #00d9f5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0 0 1rem;
+`;
+
+const SuccessMessage = styled.p`
+  color: #bfffe6;
+  font-size: 1.15rem;
+  margin: 0.5rem 0 1.5rem;
+  line-height: 1.5;
+`;
+
+const CheckIcon = styled.div`
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: conic-gradient(from 0deg, #00f5a0, #00d9f5, #8a2be2, #00f5a0);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.2rem;
+  color: #000;
+  animation: ${pulse} 2s infinite;
+`;
+
+const Confetti = styled.div`
+  position: absolute;
+  width: 10px;
+  height: 20px;
+  background: ${props => props.color};
+  opacity: 0.9;
+  animation: ${confettiFall} ${props => props.duration}s linear forwards;
+  left: ${props => props.left}%;
+  top: -20px;
+`;
+
+// ===== MAIN REGISTER COMPONENT =====
 const Register = () => {
   const { login } = useContext(AuthContext);
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // ✅ Hook added for navigation
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const submit = (e) => {
-    e.preventDefault();
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    referralCode: "",
+  });
 
-    const user = { username: username || email.split("@")[0], email };
-    localStorage.setItem("mock_user", JSON.stringify(user));
+  const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [userName, setUserName] = useState("");
 
-    // (Optional) Temporarily simulate user registration
-    login(user);
+  // Auto-fill referral from URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      setForm(prev => ({ ...prev, referralCode: ref.toUpperCase() }));
+    }
+  }, [location]);
 
-    // ✅ Redirect to login page after registration
-    navigate("/login");
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name || !form.email || !form.password) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          password: form.password,
+          ref: form.referralCode || undefined,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Registration failed!");
+        setLoading(false);
+        return;
+      }
+
+      // Save login data
+      localStorage.setItem("userInfo", JSON.stringify(data.user));
+      login(data.user);
+
+      // Show success modal
+      setUserName(data.user.name || "Quantum User");
+      setShowSuccess(true);
+
+      // Redirect after 2.8 seconds
+      setTimeout(() => {
+        navigate("/dashboard", { replace: true });
+      }, 2800);
+
+    } catch (err) {
+      console.error(err);
+      alert("Server error. Try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Confetti setup
+  const confettiColors = ["#00f5a0", "#00d9f5", "#8a2be2", "#ff6b6b", "#ffd93d", "#a0f5ff"];
+  const confettis = Array.from({ length: 40 }, (_, i) => ({
+    id: i,
+    color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+    left: Math.random() * 100,
+    duration: 2.5 + Math.random() * 2.5
+  }));
+
   return (
-    <Section>
-      <Title>Create Your Account</Title>
-      <FormCard onSubmit={submit}>
-        <Input
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <Input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <Button type="submit">Create Account</Button>
-      </FormCard>
-      <FooterText>
-        Already have an account? <a href="/login">Log In</a>
-      </FooterText>
-    </Section>
+    <>
+      <Section>
+        <Title>Join Quantum Network</Title>
+
+        <FormCard onSubmit={handleSubmit}>
+          <InputGroup>
+            <Input type="text" name="name" placeholder="Full Name" value={form.name} onChange={handleChange} required />
+            <Label>Full Name</Label>
+          </InputGroup>
+
+          <InputGroup>
+            <Input type="email" name="email" placeholder="you@example.com" value={form.email} onChange={handleChange} required />
+            <Label>Email Address</Label>
+          </InputGroup>
+
+          <InputGroup>
+            <Input type="password" name="password" placeholder="••••••••" value={form.password} onChange={handleChange} required minLength="6" />
+            <Label>Password (min 6 chars)</Label>
+          </InputGroup>
+
+          {!form.referralCode ? (
+            <InputGroup>
+              <Input
+                type="text"
+                placeholder="Referral Code (optional)"
+                value={form.referralCode}
+                onChange={(e) => setForm({ ...form, referralCode: e.target.value.toUpperCase() })}
+              />
+              <Label>Referral Code</Label>
+            </InputGroup>
+          ) : (
+            <ReferralBox>
+              Referred by: <strong>{form.referralCode}</strong>
+              <br />
+              <small>You'll get bonus on signup!</small>
+            </ReferralBox>
+          )}
+
+          <SubmitButton type="submit" disabled={loading}>
+            {loading ? "Creating Account..." : "Create Account Free"}
+          </SubmitButton>
+        </FormCard>
+
+        <Footer>
+          Already have an account? <a href="/login">Log In Here</a>
+        </Footer>
+      </Section>
+
+      {/* SUCCESS MODAL WITH CONFETTI */}
+      {showSuccess && (
+        <SuccessModal>
+          {confettis.map(c => (
+            <Confetti key={c.id} color={c.color} left={c.left} duration={c.duration} />
+          ))}
+          <ModalContent>
+            <CheckIcon>✓</CheckIcon>
+            <SuccessTitle>Account Created!</SuccessTitle>
+            <SuccessMessage>
+              Welcome to Quantum Network,<br />
+              <strong>{userName}</strong>!
+            </SuccessMessage>
+            <div style={{ fontSize: "0.9rem", color: "#88aabb" }}>
+              Redirecting to dashboard...
+            </div>
+          </ModalContent>
+        </SuccessModal>
+      )}
+    </>
   );
 };
 

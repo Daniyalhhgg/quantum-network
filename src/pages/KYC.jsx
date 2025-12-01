@@ -1,288 +1,362 @@
 import React, { useState, useEffect } from "react";
-import styled, { keyframes } from "styled-components";
+import axios from "axios";
+import styled from "styled-components";
 
-// ===== Animations =====
-const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const glowPulse = keyframes`
-  0%, 100% { box-shadow: 0 0 8px #00f5a0; }
-  50% { box-shadow: 0 0 20px #00d9f5; }
-`;
-
-// ===== Styled Components =====
+// --- STYLED COMPONENTS ---
 const Container = styled.div`
   min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   display: flex;
-  justify-content: center;
   align-items: center;
-  background: radial-gradient(circle at top, #081225, #0b132b);
-  padding: 2rem;
-  font-family: "Inter", sans-serif;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
 `;
 
 const Card = styled.div`
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 2.5rem;
   width: 100%;
-  max-width: 550px;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 0 30px rgba(0,0,0,0.4);
-  border: 1px solid rgba(0, 245, 160, 0.2);
-  color: #fff;
-  animation: ${fadeInUp} 0.8s ease;
+  max-width: 520px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 `;
 
 const Title = styled.h2`
   text-align: center;
-  font-size: 1.9rem;
+  color: #e2e8f0;
+  font-size: 2rem;
+  font-weight: 700;
   margin-bottom: 1rem;
-  background: linear-gradient(90deg, #00f5a0, #00d9f5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  @media (max-width: 500px) {
-    font-size: 1.6rem;
-  }
 `;
 
-const InfoText = styled.p`
+const Subtitle = styled.p`
   text-align: center;
-  color: #ccc;
-  margin-bottom: 1.5rem;
+  color: #94a3b8;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
 `;
 
-const Status = styled.div`
+const StatusBox = styled.div`
+  background: ${props =>
+    props.status === "approved" ? "rgba(34, 197, 94, 0.15)" :
+    props.status === "pending" ? "rgba(251, 191, 36, 0.15)" :
+    "rgba(239, 68, 68, 0.15)"};
+  border: 1px solid ${props =>
+    props.status === "approved" ? "#22c55e" :
+    props.status === "pending" ? "#f59e0b" :
+    "#ef4444"};
+  color: ${props =>
+    props.status === "approved" ? "#22c55e" :
+    props.status === "pending" ? "#f59e0b" :
+    "#ef4444"};
+  padding: 1rem 2rem;
+  border-radius: 12px;
   text-align: center;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 1.1rem;
-  margin-bottom: 1.5rem;
-  color: ${({ status }) =>
-    status === "approved" ? "#4caf50" :
-    status === "pending" ? "#ffc107" : "#bbb"};
+  margin-bottom: 2rem;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.3rem;
+`;
+
+const Label = styled.label`
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
 `;
 
 const Input = styled.input`
-  padding: 0.9rem;
-  border-radius: 12px;
-  border: none;
+  padding: 1rem 1.2rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  color: #e2e8f0;
   font-size: 1rem;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-  outline: none;
+  transition: all 0.2s;
 
   &:focus {
-    box-shadow: 0 0 12px #00f5a0;
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+
+  &::placeholder {
+    color: #64748b;
   }
 `;
 
 const Select = styled.select`
-  padding: 0.9rem;
-  border-radius: 12px;
-  border: none;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
+  padding: 1rem 1.2rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  color: #e2e8f0;
   font-size: 1rem;
-  outline: none;
 
   &:focus {
-    box-shadow: 0 0 12px #00f5a0;
+    outline: none;
+    border-color: #3b82f6;
   }
 `;
 
-const FileLabel = styled.label`
-  padding: 0.8rem;
-  background: rgba(0,245,160,0.2);
+const FileBox = styled.div`
+  border: 2px dashed #334155;
   border-radius: 12px;
+  padding: 1.5rem;
   text-align: center;
-  font-weight: 600;
   cursor: pointer;
-  display: block;
-  text-align: center;
+  transition: all 0.3s;
+  background: #0f172a;
+  position: relative;
+
+  input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  &:hover {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.05);
+  }
 `;
 
-const Preview = styled.img`
-  width: 160px;
-  border-radius: 12px;
-  margin-top: 0.5rem;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
-  border: 1px solid rgba(0,245,160,0.2);
+const PreviewImg = styled.img`
+  width: 100%;
+  max-width: 300px;
+  border-radius: 10px;
+  margin-top: 1rem;
+  border: 1px solid #334155;
 `;
 
 const SubmitBtn = styled.button`
-  padding: 0.9rem;
+  margin-top: 1.5rem;
+  padding: 1.1rem;
+  background: ${props => props.disabled ? "#334155" : "linear-gradient(90deg, #3b82f6, #2563eb)"};
+  color: white;
   border: none;
   border-radius: 12px;
-  font-weight: bold;
-  background: linear-gradient(90deg, #00f5a0, #00d9f5);
-  color: #0b132b;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
-  animation: ${glowPulse} 3s infinite;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: ${props => props.disabled ? "not-allowed" : "pointer"};
+  transition: all 0.3s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 0 20px #00f5a0;
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
   }
 `;
 
-const Pending = styled.div`
+const SuccessMsg = styled.div`
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid #22c55e;
+  color: #22c55e;
+  padding: 2rem;
+  border-radius: 16px;
   text-align: center;
-  background: rgba(255,255,255,0.1);
-  padding: 1rem;
-  border-radius: 12px;
-  font-weight: bold;
-  color: #ffc107;
+  font-size: 1.2rem;
+  font-weight: 500;
 `;
 
-const Approved = styled.div`
-  text-align: center;
-  background: rgba(76,175,80,0.15);
-  padding: 1rem;
+const WarningBox = styled.div`
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 1.2rem;
   border-radius: 12px;
-  color: #4caf50;
-  font-weight: bold;
-  box-shadow: 0 0 10px rgba(76,175,80,0.4);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
 `;
 
-const ResetBtn = styled.button`
+const AgreementRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   margin-top: 1rem;
-  background: linear-gradient(90deg, #f44336, #ff7961);
-  color: #fff;
-  border: none;
-  padding: 0.7rem 1.2rem;
-  border-radius: 12px;
-  font-weight: bold;
-  cursor: pointer;
+
+  input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  label {
+    color: #cbd5e1;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
 `;
 
-// ===== Component =====
+// --- TOKEN HELPER ---
+const getToken = () => {
+  const rawUser = localStorage.getItem("userInfo");
+  if (!rawUser) return null;
+  const user = JSON.parse(rawUser);
+  return user.token || null;
+};
+
+// --- MAIN COMPONENT ---
 const KYC = () => {
-  const [status, setStatus] = useState(localStorage.getItem("kycStatus") || "not_submitted");
+  const [status, setStatus] = useState("not_submitted");
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState("");
   const [gender, setGender] = useState("");
   const [nid, setNid] = useState("");
   const [frontDoc, setFrontDoc] = useState(null);
   const [backDoc, setBackDoc] = useState(null);
-  const [frontPreview, setFrontPreview] = useState(null);
-  const [backPreview, setBackPreview] = useState(null);
+  const [frontPreview, setFrontPreview] = useState("");
+  const [backPreview, setBackPreview] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [agree, setAgree] = useState(false);
 
   useEffect(() => {
-    const storedStatus = localStorage.getItem("kycStatus");
-    if (storedStatus) setStatus(storedStatus);
+    const fetchStatus = async () => {
+      const token = getToken();
+      if (!token) return;
+      try {
+        const res = await axios.get("/api/kyc/status", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setStatus(res.data.kycStatus || "not_submitted");
+      } catch {
+        setStatus("not_submitted");
+      }
+    };
+    fetchStatus();
   }, []);
 
-  const handleFileChange = (e, type) => {
+  const handleFile = (e, setFile, setPreview) => {
     const file = e.target.files[0];
-    if (!file) return;
-    if (type === "front") {
-      setFrontDoc(file);
-      setFrontPreview(URL.createObjectURL(file));
-    } else {
-      setBackDoc(file);
-      setBackPreview(URL.createObjectURL(file));
+    if (file) {
+      setFile(file);
+      setPreview(URL.createObjectURL(file));
     }
   };
 
-  const submitKYC = (e) => {
+  const submitKYC = async (e) => {
     e.preventDefault();
+    if (!agree) return alert("You must accept the Security Agreement before submitting.");
+
+    const token = getToken();
+    if (!token) return alert("Please login again");
+
     if (!fullName || !dob || !gender || !nid || !frontDoc || !backDoc) {
-      alert("⚠️ Complete all fields and upload both ID sides.");
-      return;
+      return alert("All fields are required");
     }
-    setStatus("pending");
-    localStorage.setItem("kycStatus", "pending");
 
-    setTimeout(() => {
-      setStatus("approved");
-      localStorage.setItem("kycStatus", "approved");
+    const formData = new FormData();
+    formData.append("fullName", fullName);
+    formData.append("dob", dob);
+    formData.append("gender", gender);
+    formData.append("nid", nid);
+    formData.append("frontDoc", frontDoc);
+    formData.append("backDoc", backDoc);
 
-      const pending = parseFloat(localStorage.getItem("pendingBalance") || "0");
-      const balance = parseFloat(localStorage.getItem("balance") || "0");
-      if (pending > 0) {
-        const total = balance + pending;
-        localStorage.setItem("balance", total.toString());
-        localStorage.setItem("pendingBalance", "0");
-        alert(`✅ KYC approved! ${pending} pending tokens added.`);
-      } else {
-        alert("✅ KYC approved! Withdrawals enabled.");
-      }
-    }, 2000);
-  };
-
-  const resetKYC = () => {
-    setStatus("not_submitted");
-    setFullName("");
-    setDob("");
-    setGender("");
-    setNid("");
-    setFrontDoc(null);
-    setBackDoc(null);
-    setFrontPreview(null);
-    setBackPreview(null);
-    localStorage.setItem("kycStatus", "not_submitted");
+    try {
+      setLoading(true);
+      await axios.post("/api/kyc/submit", formData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setStatus("pending");
+      alert("KYC submitted! Waiting for admin approval.");
+    } catch (err) {
+      alert(err.response?.data?.message || "Server error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Container>
       <Card>
         <Title>KYC Verification</Title>
-        <InfoText>Verify your identity to enable withdrawals and trading.</InfoText>
+        <Subtitle>Complete your identity verification to unlock all features</Subtitle>
 
-        <Status status={status}>
-          {status === "approved" ? "Verified ✅" :
-           status === "pending" ? "Pending ⏳" :
-           "Not Submitted"}
-        </Status>
+        <StatusBox status={status}>
+          {status === "not_submitted" && "Not Submitted"}
+          {status === "pending" && "Pending Review"}
+          {status === "approved" && "Verified"}
+        </StatusBox>
 
         {status === "not_submitted" && (
           <Form onSubmit={submitKYC}>
-            <Input placeholder="Full Name" value={fullName} onChange={e => setFullName(e.target.value)} />
-            <Input type="date" value={dob} onChange={e => setDob(e.target.value)} />
-            <Select value={gender} onChange={e => setGender(e.target.value)}>
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </Select>
-            <Input placeholder="National ID Number" value={nid} onChange={e => setNid(e.target.value)} />
+            {/* SECURITY WARNING */}
+            <WarningBox>
+              <strong>Security Notice:</strong><br/>
+              • Your device information, IP address, and location will be recorded.<br/>
+              • Duplicate or fake KYC submissions will result in permanent account suspension.<br/>
+              • Using the same ID for multiple accounts will block all associated accounts.
+            </WarningBox>
 
-            <FileLabel>
-              Upload Front of ID
-              <input type="file" accept="image/*,application/pdf" onChange={e => handleFileChange(e, "front")} style={{ display: "none" }} />
-            </FileLabel>
-            {frontPreview && <Preview src={frontPreview} alt="Front ID" />}
+            <AgreementRow>
+              <input type="checkbox" checked={agree} onChange={() => setAgree(!agree)} />
+              <label>I understand and agree to the KYC Security Terms.</label>
+            </AgreementRow>
 
-            <FileLabel>
-              Upload Back of ID
-              <input type="file" accept="image/*,application/pdf" onChange={e => handleFileChange(e, "back")} style={{ display: "none" }} />
-            </FileLabel>
-            {backPreview && <Preview src={backPreview} alt="Back ID" />}
+            <div>
+              <Label>Full Name</Label>
+              <Input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Enter full name" required />
+            </div>
 
-            <SubmitBtn type="submit">Submit KYC</SubmitBtn>
+            <div>
+              <Label>Date of Birth</Label>
+              <Input type="date" value={dob} onChange={e => setDob(e.target.value)} required />
+            </div>
+
+            <div>
+              <Label>Gender</Label>
+              <Select value={gender} onChange={e => setGender(e.target.value)} required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </Select>
+            </div>
+
+            <div>
+              <Label>NID / Passport Number</Label>
+              <Input value={nid} onChange={e => setNid(e.target.value)} placeholder="Enter NID" required />
+            </div>
+
+            <div>
+              <Label>Front Side of Document</Label>
+              <FileBox>
+                <input type="file" accept="image/*" onChange={e => handleFile(e, setFrontDoc, setFrontPreview)} />
+                <p>{frontDoc ? frontDoc.name : "Click to upload front side"}</p>
+                {frontPreview && <PreviewImg src={frontPreview} />}
+              </FileBox>
+            </div>
+
+            <div>
+              <Label>Back Side of Document</Label>
+              <FileBox>
+                <input type="file" accept="image/*" onChange={e => handleFile(e, setBackDoc, setBackPreview)} />
+                <p>{backDoc ? backDoc.name : "Click to upload back side"}</p>
+                {backPreview && <PreviewImg src={backPreview} />}
+              </FileBox>
+            </div>
+
+            <SubmitBtn type="submit" disabled={loading || !agree}>
+              {loading ? "Submitting..." : "Submit for Verification"}
+            </SubmitBtn>
           </Form>
         )}
 
-        {status === "pending" && <Pending>⏳ Your KYC is under review...</Pending>}
+        {status === "pending" && (
+          <SuccessMsg>Your KYC is under review. You will be notified once approved.</SuccessMsg>
+        )}
 
         {status === "approved" && (
-          <Approved>
-            ✅ You are KYC verified!<br />
-            Withdrawals and transfers are now enabled.
-            <br />
-            <ResetBtn onClick={resetKYC}>Reset KYC</ResetBtn>
-          </Approved>
+          <SuccessMsg>KYC Verified Successfully! All features are now unlocked.</SuccessMsg>
         )}
       </Card>
     </Container>

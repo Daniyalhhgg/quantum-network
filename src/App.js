@@ -14,6 +14,7 @@ import KYC from "./pages/KYC";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
+import Profile from "./pages/Profile";
 
 // ✅ Protected route wrapper (prevents access without login)
 import ProtectedRoute from "./components/common/ProtectedRoute";
@@ -75,6 +76,15 @@ const App = () => {
             element={
               <ProtectedRoute adminOnly>
                 <Admin />
+              </ProtectedRoute>
+            }
+          />
+         
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             }
           />

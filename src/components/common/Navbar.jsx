@@ -2,329 +2,337 @@ import React, { useContext, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import { AuthContext } from "../../context/AuthContext";
+import {
+  FiHome,
+  FiCreditCard,
+  FiShoppingBag,
+  FiShield,
+  FiUsers,
+  FiUser,
+  FiSettings,
+  FiLogOut,
+  FiMenu,
+  FiX,
+  FiCheckCircle,
+} from "react-icons/fi";
 
-// ===== Animations =====
-const fadeInDown = keyframes`
-  from { opacity: 0; transform: translateY(-20px); }
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const slideInLeft = keyframes`
-  from { transform: translateX(-100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-`;
-
-// ===== Styled Components =====
 const Nav = styled.header`
-  width: 100%;
   position: sticky;
   top: 0;
-  z-index: 200;
-  background: rgba(10, 15, 30, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 245, 160, 0.15);
-  box-shadow: 0 2px 10px rgba(0, 245, 160, 0.05);
-  animation: ${fadeInDown} 0.5s ease forwards;
+  width: 100%;
+  background: rgba(8, 15, 35, 0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0, 245, 160, 0.2);
+  z-index: 1000;
+  animation: ${fadeIn} 0.6s ease-out;
 `;
 
 const Container = styled.div`
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0.7rem 1.5rem;
+  padding: 0 1.5rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  height: 70px;
 
   @media (max-width: 768px) {
-    padding: 0.7rem 1rem;
+    padding: 0 1rem;
+    height: 65px;
   }
 `;
 
 const Logo = styled(Link)`
-  font-size: 1.6rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
+  font-size: 1.9rem;
+  font-weight: 900;
   background: linear-gradient(90deg, #00f5a0, #00d9f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  transition: opacity 0.2s;
-  z-index: 201;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 1.4rem;
-  }
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1001;
 `;
 
-const MenuButton = styled.button`
-  display: none;
-  flex-direction: column;
-  gap: 5px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  z-index: 201;
-  padding: 8px;
-  margin: -8px;
-
-  span {
-    width: 24px;
-    height: 2px;
-    background: #bfffe6;
-    border-radius: 3px;
-    transition: 0.3s;
-  }
-
-  &.active span:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
-  }
-  &.active span:nth-child(2) {
-    opacity: 0;
-  }
-  &.active span:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
-  }
+// Ye naya wrapper — isse sab right pe flush ho jayega
+const RightSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
 
   @media (max-width: 768px) {
-    display: flex;
+    gap: 1rem;
   }
 `;
 
 const NavLinks = styled.nav`
   display: flex;
   align-items: center;
-  gap: 1.2rem;
-  transition: 0.3s;
+  gap: 2rem;
 
-  a {
-    color: #bfffe6;
-    font-weight: 500;
-    text-decoration: none;
-    position: relative;
-    transition: 0.25s;
-    padding: 8px 4px;
-    white-space: nowrap;
-
-    &::after {
-      content: "";
-      position: absolute;
-      width: 0;
-      height: 2px;
-      left: 0;
-      bottom: -2px;
-      background: #00f5a0;
-      transition: width 0.3s;
-    }
-
-    &:hover::after,
-    &.active::after {
-      width: 100%;
-    }
-  }
-
-  .user-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    margin-left: 1rem;
-
-    .username {
-      font-weight: 600;
-      color: #00d9f5;
-      white-space: nowrap;
-    }
-
-    button.logout {
-      background: transparent;
-      border: 1px solid #00f5a0;
-      color: #00f5a0;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.25s;
-      white-space: nowrap;
-
-      &:hover {
-        background: #00f5a0;
-        color: #05101a;
-        box-shadow: 0 0 10px rgba(0, 245, 160, 0.5);
-      }
-    }
-  }
-
-  /* ===== MOBILE STYLES ===== */
   @media (max-width: 768px) {
     position: fixed;
     top: 0;
-    left: 0; /* ✅ Now slides from LEFT */
-    width: 80%;
-    max-width: 320px;
+    left: 0;
+    width: 280px;
     height: 100vh;
-    background: rgba(5, 10, 25, 0.98);
+    background: rgba(5, 10, 30, 0.98);
     backdrop-filter: blur(20px);
     flex-direction: column;
     align-items: flex-start;
-    justify-content: flex-start;
-    padding: 80px 1.5rem 2rem;
-    gap: 1.3rem;
-    transform: translateX(${(props) => (props.open ? "0" : "-100%")});
-    transition: transform 0.3s ease-in-out;
-    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.3);
-    border-right: 1px solid rgba(0, 245, 160, 0.2);
-    animation: ${slideInLeft} 0.3s ease-out;
-    overflow-y: auto;
-    z-index: 200;
+    padding: 100px 2rem 2rem;
+    gap: 1.8rem;
+    transform: translateX(${props => (props.open ? "0" : "-100%")});
+    transition: transform 0.4s cubic-bezier(0.6, -0.05, 0.1, 1);
+    box-shadow: 8px 0 30px rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+`;
 
-    a {
-      font-size: 1.1rem;
-      padding: 10px 0;
-      width: 100%;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
+const NavItem = styled(Link)`
+  color: #bfffe6;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
 
-    .user-controls {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.8rem;
-      margin-left: 0;
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
-      width: 100%;
+  &.active {
+    background: rgba(0, 245, 160, 0.18);
+    color: #00f5a0;
+    font-weight: 600;
+    box-shadow: 0 0 15px rgba(0, 245, 160, 0.3);
+  }
 
-      .username {
-        font-size: 1rem;
-        color: #00d9f5;
-        word-break: break-all;
-      }
+  &:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+  }
 
-      button.logout {
-        width: 100%;
-        padding: 10px;
-        font-size: 1rem;
-      }
-    }
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.15rem;
+  }
+`;
+
+const ProfileSection = styled.div`
+  position: relative;
+`;
+
+const ProfileButton = styled.button`
+  background: rgba(0, 245, 160, 0.15);
+  border: 1.5px solid rgba(0, 245, 160, 0.4);
+  color: #00f5a0;
+  padding: 11px 22px;
+  border-radius: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    background: rgba(0, 245, 160, 0.3);
+    box-shadow: 0 0 25px rgba(0, 245, 160, 0.4);
+    transform: translateY(-2px);
+  }
+`;
+
+const Dropdown = styled.div`
+  position: absolute;
+  top: 78px;
+  right: 0;
+  background: rgba(10, 20, 40, 0.97);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 245, 160, 0.3);
+  border-radius: 16px;
+  padding: 0.8rem 0;
+  min-width: 260px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  opacity: ${props => (props.show ? 1 : 0)};
+  visibility: ${props => (props.show ? "visible" : "hidden")};
+  transform: translateY(${props => (props.show ? "0" : "-15px")});
+  transition: all 0.35s ease;
+  z-index: 1000;
+
+  @media (max-width: 768px) {
+    position: fixed;
+    top: auto;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    border-radius: 20px;
+  }
+`;
+
+const DropdownItem = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 28px;
+  color: #bfffe6;
+  text-decoration: none;
+  font-size: 0.98rem;
+  transition: 0.3s;
+
+  &:hover {
+    background: rgba(0, 245, 160, 0.15);
+    color: #00f5a0;
+    padding-left: 35px;
+  }
+`;
+
+const LogoutButton = styled.button`
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 28px;
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  font-size: 0.98rem;
+  transition: 0.3s;
+
+  &:hover {
+    background: rgba(255, 107, 107, 0.15);
+    padding-left: 35px;
+  }
+`;
+
+const MobileMenuButton = styled.button`
+  display: none;
+  background: none;
+  border: none;
+  color: #bfffe6;
+  font-size: 1.9rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 12px;
+  transition: 0.3s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    display: block;
   }
 `;
 
 const Overlay = styled.div`
-  display: ${(props) => (props.open ? "block" : "none")};
+  display: ${props => (props.open ? "block" : "none")};
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(5px);
-  z-index: 150; /* ✅ below navbar, above content */
-  transition: opacity 0.3s ease;
-
-  @media (min-width: 769px) {
-    display: none;
-  }
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 998;
 `;
 
-// ===== Navbar Component =====
+// MAIN COMPONENT
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext) || {};
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const location = useLocation();
 
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [location]);
-
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === "Escape") setMenuOpen(false);
-    };
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "unset";
-    return () => (document.body.style.overflow = "unset");
-  }, [menuOpen]);
-
   const getUsername = () => {
-    if (typeof user?.username === "string") return user.username;
-    if (typeof user?.user?.username === "string") return user.user.username;
-    if (typeof user?.username?.username === "string") return user.username.username;
+    if (!user) return "User";
+    if (user.name && typeof user.name === "string" && user.name.trim()) return user.name.trim();
+    if (user.email) return user.email.split("@")[0];
     return "User";
   };
 
-  const handleLogout = () => {
-    logout?.();
+  useEffect(() => {
     setMenuOpen(false);
-  };
-
-  const handleLinkClick = () => {
-    setMenuOpen(false);
-  };
+    setDropdownOpen(false);
+  }, [location]);
 
   return (
     <>
       <Nav>
         <Container>
-          <Logo to="/" onClick={handleLinkClick}>
-            ⚛ Quantum
-          </Logo>
+          <Logo to="/">Quantum</Logo>
 
-          <MenuButton
-            className={menuOpen ? "active" : ""}
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-          >
-            <span />
-            <span />
-            <span />
-          </MenuButton>
+          {/* Ye khali div center ka space le lega → sab right pe chala jayega */}
+          <div style={{ flexGrow: 1 }} />
 
-          <NavLinks open={menuOpen}>
-            <Link to="/" className={location.pathname === "/" ? "active" : ""} onClick={handleLinkClick}>
-              Home
-            </Link>
+          <RightSection>
+            {/* Desktop Links */}
+            <NavLinks open={menuOpen}>
+              <NavItem to="/" className={location.pathname === "/" ? "active" : ""}>
+                <FiHome /> Home
+              </NavItem>
 
-            {user ? (
-              <>
-                <Link to="/dashboard" className={location.pathname === "/dashboard" ? "active" : ""} onClick={handleLinkClick}>
-                  Dashboard
-                </Link>
-                <Link to="/wallet" className={location.pathname === "/wallet" ? "active" : ""} onClick={handleLinkClick}>
-                  Wallet
-                </Link>
-                <Link to="/trustcircle" className={location.pathname === "/trustcircle" ? "active" : ""} onClick={handleLinkClick}>
-                  Trust Circle
-                </Link>
-                <Link to="/marketplace" className={location.pathname === "/marketplace" ? "active" : ""} onClick={handleLinkClick}>
-                  Marketplace
-                </Link>
-                <Link to="/kyc" className={location.pathname === "/kyc" ? "active" : ""} onClick={handleLinkClick}>
-                  KYC
-                </Link>
+              {user ? (
+                <>
+                  <NavItem to="/dashboard" className={location.pathname.startsWith("/dashboard") ? "active" : ""}>
+                    <FiShield /> Dashboard
+                  </NavItem>
+                  <NavItem to="/wallet" className={location.pathname === "/wallet" ? "active" : ""}>
+                    <FiCreditCard /> Wallet
+                  </NavItem>
+                  <NavItem to="/marketplace" className={location.pathname === "/marketplace" ? "active" : ""}>
+                    <FiShoppingBag /> Marketplace
+                  </NavItem>
+                </>
+              ) : (
+                <>
+                  <NavItem to="/login">Login</NavItem>
+                  <NavItem to="/register">Register</NavItem>
+                </>
+              )}
+            </NavLinks>
 
-                <div className="user-controls">
-                  <span className="username">Hi, {getUsername()}</span>
-                  <button className="logout" onClick={handleLogout}>
-                    Logout
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <Link to="/login" onClick={handleLinkClick}>Login</Link>
-                <Link to="/register" onClick={handleLinkClick}>Register</Link>
-              </>
+            {/* User Dropdown */}
+            {user && (
+              <ProfileSection>
+                <ProfileButton onClick={() => setDropdownOpen(!dropdownOpen)}>
+                  <FiUser size={19} />
+                  {getUsername()}
+                </ProfileButton>
+
+                <Dropdown show={dropdownOpen}>
+                  <DropdownItem to="/profile">
+                    <FiUser /> My Profile
+                  </DropdownItem>
+                  <DropdownItem to="/settings">
+                    <FiSettings /> Settings
+                  </DropdownItem>
+                  <DropdownItem to="/kyc">
+                    <FiCheckCircle /> KYC Verification
+                  </DropdownItem>
+                  <DropdownItem to="/trustcircle">
+                    <FiUsers /> Trust Circle
+                  </DropdownItem>
+                  <LogoutButton onClick={() => { logout?.(); setDropdownOpen(false); }}>
+                    <FiLogOut /> Logout
+                  </LogoutButton>
+                </Dropdown>
+              </ProfileSection>
             )}
-          </NavLinks>
+          </RightSection>
+
+          {/* Mobile Menu */}
+          <MobileMenuButton onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <FiX /> : <FiMenu />}
+          </MobileMenuButton>
         </Container>
       </Nav>
 
