@@ -114,7 +114,7 @@ const SubmitButton = styled.button`
   margin-top: 1rem;
   font-size: 1.1rem;
   font-weight: 800;
-  color.  color: #0b132b;
+  color: #0b132b;
   background: linear-gradient(90deg, #00f5a0, #00d9f5);
   border: none;
   border-radius: 12px;
@@ -132,20 +132,19 @@ const Footer = styled.div`
   color: #99aabb;
   font-size: 0.95rem;
   z-index: 10;
-  a { color: #00f5a0; font-weight: 700; text-decoration: none; &:hover { text-decoration: underline; } }
+
+  a { color: #00f5a0; font-weight: 700; text-decoration: none; }
 `;
 
-// ===== SUCCESS MODAL (Same as Login) =====
+// ========= SUCCESS MODAL =========
 const SuccessModal = styled.div`
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(5, 8, 18, 0.95);
-  backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  animation: ${fadeInUp} 0.6s ease-out;
 `;
 
 const ModalContent = styled.div`
@@ -157,25 +156,6 @@ const ModalContent = styled.div`
   max-width: 380px;
   width: 90%;
   animation: ${modalPop} 0.7s ease-out;
-  box-shadow: 0 0 60px rgba(0, 245, 160, 0.6);
-  position: relative;
-  overflow: hidden;
-`;
-
-const SuccessTitle = styled.h2`
-  font-size: 2.3rem;
-  font-weight: 900;
-  background: linear-gradient(90deg, #00f5a0, #00d9f5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin: 0 0 1rem;
-`;
-
-const SuccessMessage = styled.p`
-  color: #bfffe6;
-  font-size: 1.15rem;
-  margin: 0.5rem 0 1.5rem;
-  line-height: 1.5;
 `;
 
 const CheckIcon = styled.div`
@@ -189,21 +169,22 @@ const CheckIcon = styled.div`
   justify-content: center;
   font-size: 3.2rem;
   color: #000;
-  animation: ${pulse} 2s infinite;
 `;
 
-const Confetti = styled.div`
-  position: absolute;
-  width: 10px;
-  height: 20px;
-  background: ${props => props.color};
-  opacity: 0.9;
-  animation: ${confettiFall} ${props => props.duration}s linear forwards;
-  left: ${props => props.left}%;
-  top: -20px;
+const SuccessTitle = styled.h2`
+  font-size: 2.3rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, #00f5a0, #00d9f5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 `;
 
-// ===== MAIN REGISTER COMPONENT =====
+const SuccessMessage = styled.p`
+  color: #bfffe6;
+  font-size: 1.15rem;
+`;
+
+// ===== MAIN COMPONENT =====
 const Register = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -220,7 +201,7 @@ const Register = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [userName, setUserName] = useState("");
 
-  // Auto-fill referral from URL
+  // Auto-referral from URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const ref = params.get("ref");
@@ -233,6 +214,7 @@ const Register = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // ============= REGISTER API CALL =============
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.password) {
@@ -243,16 +225,19 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          email: form.email.trim(),
-          password: form.password,
-          ref: form.referralCode || undefined,
-        }),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/auth/register`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.name.trim(),
+            email: form.email.trim(),
+            password: form.password,
+            ref: form.referralCode || undefined,
+          }),
+        }
+      );
 
       const data = await res.json();
 
@@ -262,15 +247,12 @@ const Register = () => {
         return;
       }
 
-      // Save login data
       localStorage.setItem("userInfo", JSON.stringify(data.user));
       login(data.user);
 
-      // Show success modal
-      setUserName(data.user.name || "Quantum User");
+      setUserName(data.user.name);
       setShowSuccess(true);
 
-      // Redirect after 2.8 seconds
       setTimeout(() => {
         navigate("/dashboard", { replace: true });
       }, 2800);
@@ -283,15 +265,6 @@ const Register = () => {
     }
   };
 
-  // Confetti setup
-  const confettiColors = ["#00f5a0", "#00d9f5", "#8a2be2", "#ff6b6b", "#ffd93d", "#a0f5ff"];
-  const confettis = Array.from({ length: 40 }, (_, i) => ({
-    id: i,
-    color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
-    left: Math.random() * 100,
-    duration: 2.5 + Math.random() * 2.5
-  }));
-
   return (
     <>
       <Section>
@@ -299,17 +272,20 @@ const Register = () => {
 
         <FormCard onSubmit={handleSubmit}>
           <InputGroup>
-            <Input type="text" name="name" placeholder="Full Name" value={form.name} onChange={handleChange} required />
+            <Input type="text" name="name" placeholder="Full Name"
+              value={form.name} onChange={handleChange} required />
             <Label>Full Name</Label>
           </InputGroup>
 
           <InputGroup>
-            <Input type="email" name="email" placeholder="you@example.com" value={form.email} onChange={handleChange} required />
+            <Input type="email" name="email" placeholder="you@example.com"
+              value={form.email} onChange={handleChange} required />
             <Label>Email Address</Label>
           </InputGroup>
 
           <InputGroup>
-            <Input type="password" name="password" placeholder="••••••••" value={form.password} onChange={handleChange} required minLength="6" />
+            <Input type="password" name="password" placeholder="••••••••"
+              value={form.password} onChange={handleChange} required minLength="6" />
             <Label>Password (min 6 chars)</Label>
           </InputGroup>
 
@@ -319,7 +295,9 @@ const Register = () => {
                 type="text"
                 placeholder="Referral Code (optional)"
                 value={form.referralCode}
-                onChange={(e) => setForm({ ...form, referralCode: e.target.value.toUpperCase() })}
+                onChange={(e) =>
+                  setForm({ ...form, referralCode: e.target.value.toUpperCase() })
+                }
               />
               <Label>Referral Code</Label>
             </InputGroup>
@@ -327,7 +305,7 @@ const Register = () => {
             <ReferralBox>
               Referred by: <strong>{form.referralCode}</strong>
               <br />
-              <small>You'll get bonus on signup!</small>
+              <small>You’ll get signup bonus!</small>
             </ReferralBox>
           )}
 
@@ -341,12 +319,8 @@ const Register = () => {
         </Footer>
       </Section>
 
-      {/* SUCCESS MODAL WITH CONFETTI */}
       {showSuccess && (
         <SuccessModal>
-          {confettis.map(c => (
-            <Confetti key={c.id} color={c.color} left={c.left} duration={c.duration} />
-          ))}
           <ModalContent>
             <CheckIcon>✓</CheckIcon>
             <SuccessTitle>Account Created!</SuccessTitle>
@@ -354,7 +328,7 @@ const Register = () => {
               Welcome to Quantum Network,<br />
               <strong>{userName}</strong>!
             </SuccessMessage>
-            <div style={{ fontSize: "0.9rem", color: "#88aabb" }}>
+            <div style={{ color: "#88aabb", marginTop: "1rem" }}>
               Redirecting to dashboard...
             </div>
           </ModalContent>
