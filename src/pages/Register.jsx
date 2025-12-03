@@ -269,7 +269,7 @@ const Register = () => {
   return (
     <>
       <Section>
-        <Title>Join Quantum Network</Title>
+        <Title>PJoin Quantum Network</Title>
 
         <FormCard onSubmit={handleSubmit}>
           <InputGroup>
