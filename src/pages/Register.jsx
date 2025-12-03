@@ -20,11 +20,6 @@ const modalPop = keyframes`
   100% { transform: scale(1); opacity: 1; }
 `;
 
-const confettiFall = keyframes`
-  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-`;
-
 // ===== STYLED COMPONENTS =====
 const Section = styled.section`
   min-height: 100vh;
@@ -45,7 +40,6 @@ const Title = styled.h2`
   text-align: center;
   background: linear-gradient(90deg, #00f5a0, #00d9f5, #8a2be2);
   -webkit-background-clip: text;
-  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 2rem;
   animation: ${fadeInUp} 0.9s ease-out;
@@ -78,10 +72,13 @@ const Input = styled.input`
   color: #fff;
   font-size: 1rem;
   outline: none;
-  transition: all 0.3s ease;
+  transition: 0.3s;
 
   &::placeholder { color: #88aabb; }
-  &:focus { border-color: #00f5a0; box-shadow: 0 0 15px rgba(0, 245, 160, 0.4); }
+  &:focus {
+    border-color: #00f5a0;
+    box-shadow: 0 0 15px rgba(0, 245, 160, 0.4);
+  }
 `;
 
 const Label = styled.label`
@@ -105,7 +102,6 @@ const ReferralBox = styled.div`
   color: #00f5a0;
   font-size: 0.95rem;
   margin: 1rem 0;
-  animation: ${pulse} 3s infinite;
 `;
 
 const SubmitButton = styled.button`
@@ -119,26 +115,15 @@ const SubmitButton = styled.button`
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  animation: ${pulse} 4s infinite;
 
-  &:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0, 245, 160, 0.5); }
-  &:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+  &:disabled { opacity: 0.7; cursor: not-allowed; }
 `;
 
-const Footer = styled.div`
-  margin-top: 2rem;
-  text-align: center;
-  color: #99aabb;
-  font-size: 0.95rem;
-  z-index: 10;
-
-  a { color: #00f5a0; font-weight: 700; text-decoration: none; }
-`;
-
+// ========== SUCCESS MODAL ==========
 const SuccessModal = styled.div`
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
   background: rgba(5, 8, 18, 0.95);
   display: flex;
   align-items: center;
@@ -161,39 +146,24 @@ const CheckIcon = styled.div`
   width: 80px;
   height: 80px;
   margin: 0 auto 1.5rem;
-  background: conic-gradient(from 0deg, #00f5a0, #00d9f5, #8a2be2, #00f5a0);
+  background: conic-gradient(from 0deg, #00f5a0, #00d9f5, #8a2be2);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3.2rem;
+  font-size: 3rem;
   color: #000;
 `;
 
-const SuccessTitle = styled.h2`
-  font-size: 2.3rem;
-  font-weight: 900;
-  background: linear-gradient(90deg, #00f5a0, #00d9f5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-`;
-
-const SuccessMessage = styled.p`
-  color: #bfffe6;
-  font-size: 1.15rem;
-`;
-
-// ========== MAIN COMPONENT ==========
 const Register = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // FINAL WORKING API BASE URL
+  // FIXED: REQUIRED FOR VERCEL
   const API_BASE_URL =
-    import.meta.env.REACT_APP_API_BASE_URL ||
-    process.env.REACT_APP_API_BASE_URL ||
-    "https://planttaxa.store";
+    process.env.REACT_APP_API_URL ||
+    "https://planttaxa.store/api"; // fallback to avoid white screen
 
   const [form, setForm] = useState({
     name: "",
@@ -210,38 +180,26 @@ const Register = () => {
     const params = new URLSearchParams(location.search);
     const ref = params.get("ref");
     if (ref) {
-      setForm(prev => ({ ...prev, referralCode: ref.toUpperCase() }));
+      setForm((prev) => ({ ...prev, referralCode: ref.toUpperCase() }));
     }
   }, [location]);
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.name || !form.email || !form.password) {
-      alert("Please fill all required fields");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/api/auth/register`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: form.name.trim(),
-            email: form.email.trim(),
-            password: form.password,
-            ref: form.referralCode || undefined,
-          }),
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          password: form.password,
+          ref: form.referralCode || undefined,
+        }),
+      });
 
       const data = await res.json();
 
@@ -257,84 +215,98 @@ const Register = () => {
       setUserName(data.user.name);
       setShowSuccess(true);
 
-      setTimeout(() => {
-        navigate("/dashboard", { replace: true });
-      }, 2800);
-
+      setTimeout(() => navigate("/dashboard"), 2500);
     } catch (err) {
-      console.error(err);
-      alert("Server error. Try again later.");
-    } finally {
-      setLoading(false);
+      alert("Server error. Try again.");
     }
+
+    setLoading(false);
   };
 
   return (
     <>
       <Section>
-        <Title>Join Quantum Network</Title>
+        <Title>pJoin Quantum Network</Title>
 
         <FormCard onSubmit={handleSubmit}>
           <InputGroup>
-            <Input type="text" name="name" placeholder="Full Name"
-              value={form.name} onChange={handleChange} required />
+            <Input
+              type="text"
+              name="name"
+              placeholder="Full Name"
+              value={form.name}
+              onChange={(e) =>
+                setForm({ ...form, name: e.target.value })
+              }
+              required
+            />
             <Label>Full Name</Label>
           </InputGroup>
 
           <InputGroup>
-            <Input type="email" name="email" placeholder="you@example.com"
-              value={form.email} onChange={handleChange} required />
+            <Input
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={(e) =>
+                setForm({ ...form, email: e.target.value })
+              }
+              required
+            />
             <Label>Email Address</Label>
           </InputGroup>
 
           <InputGroup>
-            <Input type="password" name="password" placeholder="••••••••"
-              value={form.password} onChange={handleChange} required minLength="6" />
-            <Label>Password (min 6 chars)</Label>
+            <Input
+              type="password"
+              name="password"
+              placeholder="••••••••"
+              value={form.password}
+              onChange={(e) =>
+                setForm({ ...form, password: e.target.value })
+              }
+              required
+              minLength="6"
+            />
+            <Label>Password</Label>
           </InputGroup>
 
-          {!form.referralCode ? (
+          {form.referralCode ? (
+            <ReferralBox>
+              Referred by: <b>{form.referralCode}</b>
+            </ReferralBox>
+          ) : (
             <InputGroup>
               <Input
                 type="text"
                 placeholder="Referral Code (optional)"
                 value={form.referralCode}
                 onChange={(e) =>
-                  setForm({ ...form, referralCode: e.target.value.toUpperCase() })
+                  setForm({
+                    ...form,
+                    referralCode: e.target.value.toUpperCase(),
+                  })
                 }
               />
               <Label>Referral Code</Label>
             </InputGroup>
-          ) : (
-            <ReferralBox>
-              Referred by: <strong>{form.referralCode}</strong>
-              <br />
-              <small>You’ll get signup bonus!</small>
-            </ReferralBox>
           )}
 
           <SubmitButton type="submit" disabled={loading}>
             {loading ? "Creating Account..." : "Create Account Free"}
           </SubmitButton>
         </FormCard>
-
-        <Footer>
-          Already have an account? <a href="/login">Log In Here</a>
-        </Footer>
       </Section>
 
       {showSuccess && (
         <SuccessModal>
           <ModalContent>
             <CheckIcon>✓</CheckIcon>
-            <SuccessTitle>Account Created!</SuccessTitle>
-            <SuccessMessage>
-              Welcome to Quantum Network,<br />
-              <strong>{userName}</strong>!
-            </SuccessMessage>
-            <div style={{ color: "#88aabb", marginTop: "1rem" }}>
-              Redirecting to dashboard...
-            </div>
+            <h2 style={{ color: "#00f5a0" }}>Account Created!</h2>
+            <p style={{ color: "#bfffe6" }}>
+              Welcome <b>{userName}</b> 🎉
+            </p>
           </ModalContent>
         </SuccessModal>
       )}
