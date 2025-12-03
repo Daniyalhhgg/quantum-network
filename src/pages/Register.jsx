@@ -136,7 +136,6 @@ const Footer = styled.div`
   a { color: #00f5a0; font-weight: 700; text-decoration: none; }
 `;
 
-// ========= SUCCESS MODAL =========
 const SuccessModal = styled.div`
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -190,7 +189,11 @@ const Register = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL;
+  // FINAL WORKING API BASE URL
+  const API_BASE_URL =
+    import.meta.env.REACT_APP_API_BASE_URL ||
+    process.env.REACT_APP_API_BASE_URL ||
+    "https://planttaxa.store";
 
   const [form, setForm] = useState({
     name: "",
@@ -227,7 +230,7 @@ const Register = () => {
 
     try {
       const res = await fetch(
-        `${API_BASE_URL}/auth/register`,
+        `${API_BASE_URL}/api/auth/register`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
