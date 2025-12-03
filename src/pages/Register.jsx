@@ -184,11 +184,13 @@ const SuccessMessage = styled.p`
   font-size: 1.15rem;
 `;
 
-// ===== MAIN COMPONENT =====
+// ========== MAIN COMPONENT ==========
 const Register = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   const [form, setForm] = useState({
     name: "",
@@ -201,7 +203,6 @@ const Register = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [userName, setUserName] = useState("");
 
-  // Auto-referral from URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const ref = params.get("ref");
@@ -214,9 +215,9 @@ const Register = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // ============= REGISTER API CALL =============
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!form.name || !form.email || !form.password) {
       alert("Please fill all required fields");
       return;
@@ -226,7 +227,7 @@ const Register = () => {
 
     try {
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/auth/register`,
+        `${API_BASE_URL}/auth/register`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
