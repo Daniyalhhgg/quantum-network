@@ -1,9 +1,12 @@
 // src/pages/ForgotPassword.jsx
 import React, { useState } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { motion } from "framer-motion";
+
+// ⭐ API Base URL (Local + Production)
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Container = styled.div`
   min-height: 100vh;
@@ -90,18 +93,18 @@ const ForgotPassword = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState("");
-  const navigate = useNavigate();
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(""), 3000);
   };
 
+  // ⭐ SEND OTP
   const sendOTP = async () => {
     if (!email) return showToast("Enter email");
     setLoading(true);
     try {
-      await axios.post("/api/auth/forgot-password", { email });
+      await axios.post(`${API_URL}/auth/forgot-password`, { email });
       setStep(2);
       showToast("OTP sent! Check your email");
     } catch (err) {
@@ -111,13 +114,20 @@ const ForgotPassword = () => {
     }
   };
 
+  // ⭐ RESET PASSWORD
   const resetPassword = async () => {
     if (!otp || !newPass) return showToast("Fill all fields");
     setLoading(true);
+
     try {
-      await axios.post("/api/auth/reset-password", { email, otp, newPassword: newPass });
+      await axios.post(`${API_URL}/auth/reset-password`, {
+        email,
+        otp,
+        newPassword: newPass,
+      });
+
       showToast("Password reset! Redirecting...");
-      setTimeout(() => navigate("/login"), 2000);
+      setTimeout(() => (window.location.href = "/login"), 2000);
     } catch (err) {
       showToast(err.response?.data?.message || "Invalid OTP");
     } finally {
@@ -179,10 +189,7 @@ const ForgotPassword = () => {
         </div>
 
         {toast && (
-          <Toast
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <Toast initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             {toast}
           </Toast>
         )}
