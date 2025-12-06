@@ -1,8 +1,9 @@
-// src/pages/Marketplace.jsx → FINAL 100% WORKING VERSION
+// src/pages/Marketplace.jsx → FINAL 100% WORKING VERSION (Toast Instead of Alert)
 import React, { useState, useEffect, useCallback } from "react";
 import styled, { keyframes } from "styled-components";
 import axios from "axios";
 import { FiSearch, FiTrendingUp, FiTrendingDown, FiRefreshCw } from "react-icons/fi";
+import { motion } from "framer-motion";
 
 const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(30px); }
@@ -235,6 +236,28 @@ const LoadMoreBtn = styled.button`
   }
 `;
 
+// ======================= TOAST NOTIFICATION =======================
+const Toast = styled(motion.div)`
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 245, 160, 0.18);
+  color: #00f5a0;
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 1px solid rgba(0, 245, 160, 0.3);
+  font-weight: 600;
+  font-size: 0.9rem;
+  z-index: 9999;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 20px rgba(0, 245, 160, 0.3);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
 // ======================= MAIN COMPONENT =======================
 export default function Marketplace() {
   const [showConsent, setShowConsent] = useState(false);
@@ -245,12 +268,19 @@ export default function Marketplace() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [toast, setToast] = useState(null); // NEW TOAST STATE
 
   const partners = [
     { name: "AdPartner", desc: "Audience insights (aggregated)" },
     { name: "ResearchCo", desc: "Anonymized engagement data" },
     { name: "MarketAI", desc: "Trend-based behavioral analytics" },
   ];
+
+  // Toast Helper
+  const showToast = (msg, duration = 2000) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), duration);
+  };
 
   // Fetch Crypto Data
   const fetchCrypto = useCallback(async (pageNum = 1) => {
@@ -272,7 +302,7 @@ export default function Marketplace() {
       setHasMore(res.data.length === 50);
     } catch (err) {
       console.error("Crypto API Error:", err);
-      alert("Crypto market temporarily down");
+      showToast("Crypto market temporarily down");
     } finally {
       if (pageNum === 1) setLoading(false);
     }
@@ -307,7 +337,7 @@ export default function Marketplace() {
     setOpted(agree);
     setShowConsent(false);
     if (agree) {
-      alert("You have successfully joined Quantum Data Marketplace!");
+      showToast("You have successfully joined Quantum Data Marketplace!");
     }
   };
 
@@ -319,7 +349,7 @@ export default function Marketplace() {
         <HeroSubtitle>
           Monetize your anonymized data & earn QNT tokens passively
         </HeroSubtitle>
-        <OptInButton onClick={() => setShowConsent(true)}>
+        <OptInButton onClick={() => setShowConsent(true)} whileTap={{ scale: 0.95 }}>
           {opted ? "Manage Consent" : "Opt-in & Start Earning"}
         </OptInButton>
       </div>
@@ -381,7 +411,7 @@ export default function Marketplace() {
         </CryptoGrid>
 
         {hasMore && (
-          <LoadMoreBtn onClick={loadMore}>
+          <LoadMoreBtn onClick={loadMore} whileTap={{ scale: 0.95 }}>
             Load More Coins
           </LoadMoreBtn>
         )}
@@ -407,21 +437,43 @@ export default function Marketplace() {
               You can revoke anytime.
             </p>
             <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-              <button onClick={() => handleConsent(true)} style={{
-                padding: "14px 32px", background: "#00f5a0", color: "#000",
-                border: "none", borderRadius: "12px", fontWeight: "bold", cursor: "pointer"
-              }}>
+              <button 
+                onClick={() => handleConsent(true)} 
+                style={{
+                  padding: "14px 32px", background: "#00f5a0", color: "#000",
+                  border: "none", borderRadius: "12px", fontWeight: "bold", cursor: "pointer"
+                }}
+                onMouseDown={(e) => e.currentTarget.style.transform = "scale(0.95)"}
+                onMouseUp={(e) => e.currentTarget.style.transform = ""}
+              >
                 Agree & Earn
               </button>
-              <button onClick={() => setShowConsent(false)} style={{
-                padding: "14px 32px", background: "transparent", color: "#ff6b6b",
-                border: "2px solid #ff6b6b", borderRadius: "12px", cursor: "pointer"
-              }}>
+              <button 
+                onClick={() => setShowConsent(false)} 
+                style={{
+                  padding: "14px 32px", background: "transparent", color: "#ff6b6b",
+                  border: "2px solid #ff6b6b", borderRadius: "12px", cursor: "pointer"
+                }}
+                onMouseDown={(e) => e.currentTarget.style.transform = "scale(0.95)"}
+                onMouseUp={(e) => e.currentTarget.style.transform = ""}
+              >
                 Cancel
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* TOAST NOTIFICATION */}
+      {toast && (
+        <Toast
+          initial={{ opacity: 0, y: 50, scale: 0.8 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -20, scale: 0.8 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        >
+          {toast}
+        </Toast>
       )}
     </Page>
   );

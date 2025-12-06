@@ -1,17 +1,25 @@
-// src/pages/Profile.jsx
-
+// src/pages/Profile.jsx → FINAL RESPONSIVE + TOAST VERSION
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
-import { FiCamera, FiMapPin, FiSave, FiUser, FiMail, FiGlobe, FiPhone, FiShield, FiCheck } from "react-icons/fi";
-// ↑ Yeh sab icons 100% exist karte hain react-icons/fi mein
+import {
+  FiCamera,
+  FiMapPin,
+  FiSave,
+  FiUser,
+  FiMail,
+  FiGlobe,
+  FiPhone,
+  FiShield,
+  FiCheck,
+} from "react-icons/fi";
 
 const Page = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #0a0e1f 0%, #050812 100%);
   color: #e0f8ff;
-  font-family: 'Inter', sans-serif;
-  padding: 2rem 1rem;
+  font-family: "Inter", sans-serif;
+  padding: clamp(1rem, 3vw, 2rem);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,13 +32,14 @@ const Container = styled(motion.div)`
   backdrop-filter: blur(20px);
   border: 1px solid rgba(0, 245, 160, 0.3);
   border-radius: 24px;
-  padding: 2.5rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
   box-shadow: 0 20px 60px rgba(0, 245, 160, 0.15);
+  margin: 0 auto;
 `;
 
 const Title = styled.h1`
   text-align: center;
-  font-size: 2.4rem;
+  font-size: clamp(1.8rem, 5vw, 2.4rem);
   font-weight: 900;
   background: linear-gradient(90deg, #00f5a0, #00d9f5);
   -webkit-background-clip: text;
@@ -41,19 +50,20 @@ const Title = styled.h1`
 const Subtitle = styled.p`
   text-align: center;
   color: #88aabb;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
   margin-bottom: 2rem;
 `;
 
 const AvatarWrapper = styled.div`
   position: relative;
-  width: 140px;
-  height: 140px;
+  width: clamp(100px, 25vw, 140px);
+  height: clamp(100px, 25vw, 140px);
   margin: 0 auto 2rem;
 `;
 
 const Avatar = styled.div`
-  width: 140px;
-  height: 140px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   background: ${p => p.src ? `url(${p.src}) center/cover no-repeat` : "linear-gradient(135deg, #00f5a0, #00d9f5)"};
   border: 5px solid #00f5a0;
@@ -61,7 +71,7 @@ const Avatar = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 4rem;
+  font-size: clamp(2rem, 6vw, 4rem);
   font-weight: bold;
   color: #000;
 `;
@@ -84,7 +94,7 @@ const CameraBtn = styled.label`
 
 const InputGroup = styled.div`
   position: relative;
-  margin-bottom: 1.2rem;
+  margin-bottom: clamp(0.8rem, 2vw, 1.2rem);
 `;
 
 const Icon = styled.div`
@@ -93,54 +103,99 @@ const Icon = styled.div`
   top: 50%;
   transform: translateY(-50%);
   color: #00f5a0;
-  font-size: 1.3rem;
+  font-size: clamp(1.1rem, 3vw, 1.3rem);
   z-index: 2;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 18px 18px 18px 56px;
+  padding: clamp(14px, 3vw, 18px) clamp(14px, 3vw, 18px) clamp(14px, 3vw, 18px) clamp(48px, 10vw, 56px);
   border-radius: 16px;
   border: 1px solid rgba(0, 245, 160, 0.3);
   background: rgba(10, 20, 40, 0.7);
   color: #fff;
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
   outline: none;
   transition: all 0.3s;
+  box-sizing: border-box;
+
   &:focus {
     border-color: #00f5a0;
     box-shadow: 0 0 25px rgba(0, 245, 160, 0.4);
+  }
+
+  &::placeholder {
+    color: #777;
   }
 `;
 
 const LocationBox = styled.div`
   background: ${p => p.allowed ? "rgba(0, 245, 160, 0.15)" : "rgba(0, 245, 160, 0.08)"};
   border: 2px dashed ${p => p.allowed ? "#00f5a0" : "#00f5a0"};
-  padding: 1.8rem;
+  padding: clamp(1.2rem, 3vw, 1.8rem);
   border-radius: 18px;
   text-align: center;
   cursor: ${p => p.allowed ? "default" : "pointer"};
   transition: all 0.3s;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+
+  p {
+    margin: clamp(8px, 2vw, 12px) 0 0;
+    font-weight: bold;
+  }
+
+  small {
+    font-size: 0.85em;
+    color: #88aabb;
+  }
 `;
 
 const SaveBtn = styled(motion.button)`
   width: 100%;
-  padding: 18px;
+  padding: clamp(14px, 3vw, 18px);
   margin-top: 2rem;
   border: none;
   border-radius: 50px;
   background: linear-gradient(90deg, #00f5a0, #00d9f5);
   color: #000;
   font-weight: 800;
-  font-size: 1.3rem;
+  font-size: clamp(1.1rem, 3vw, 1.3rem);
   cursor: pointer;
   box-shadow: 0 10px 40px rgba(0, 245, 160, 0.5);
+`;
+
+// TOAST
+const Toast = styled(motion.div)`
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 245, 160, 0.18);
+  color: #00f5a0;
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 1px solid rgba(0, 245, 160, 0.3);
+  font-weight: 600;
+  font-size: 0.9rem;
+  z-index: 9999;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 20px rgba(0, 245, 160, 0.3);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
 export default function Profile() {
   const [profile, setProfile] = useState({
     name: "", lastName: "", country: "", phone: "", idCard: "", email: "", photo: "", ip: "", allowed: false
   });
+  const [toast, setToast] = useState(null);
+
+  const showToast = (msg, duration = 2000) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), duration);
+  };
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
@@ -163,13 +218,17 @@ export default function Profile() {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => setProfile(p => ({ ...p, photo: reader.result }));
+      reader.onloadend = () => {
+        setProfile(p => ({ ...p, photo: reader.result }));
+        showToast("Photo updated!");
+      };
       reader.readAsDataURL(file);
     }
   };
 
   const detectLocation = () => {
     if (profile.allowed) return;
+    showToast("Detecting location...");
     fetch("https://ipapi.co/json/")
       .then(r => r.json())
       .then(data => {
@@ -179,14 +238,14 @@ export default function Profile() {
           country: data.country_name || "Unknown",
           allowed: true
         }));
-        alert(`Device Locked!\nCountry: ${data.country_name}\nIP: ${data.ip}\n1 Device = 1 Account`);
+        showToast(`Device Locked! ${data.country_name} • ${data.ip}`);
       })
-      .catch(() => alert("Failed to detect location"));
+      .catch(() => showToast("Failed to detect location"));
   };
 
   const save = () => {
     localStorage.setItem("userProfile", JSON.stringify(profile));
-    alert("Profile Saved Successfully!");
+    showToast("Profile Saved Successfully!");
   };
 
   return (
@@ -239,22 +298,34 @@ export default function Profile() {
           {profile.allowed ? (
             <>
               <FiCheck size={36} color="#00f5a0" />
-              <p style={{margin: "12px 0 0", fontWeight: "bold"}}>Device Verified</p>
+              <p>Device Verified</p>
               <small>{profile.country} • {profile.ip}</small>
             </>
           ) : (
             <>
               <FiMapPin size={36} color="#00f5a0" />
-              <p style={{margin: "12px 0 0", fontWeight: "bold"}}>Tap to Lock Device</p>
+              <p>Tap to Lock Device</p>
               <small>1 Device = 1 Account Policy</small>
             </>
           )}
         </LocationBox>
 
         <SaveBtn whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={save}>
-          <FiSave style={{marginRight: "10px"}} /> Save Profile
+          <FiSave style={{ marginRight: "10px" }} /> Save Profile
         </SaveBtn>
       </Container>
+
+      {/* TOAST */}
+      {toast && (
+        <Toast
+          initial={{ opacity: 0, y: 50, scale: 0.8 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -20, scale: 0.8 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        >
+          {toast}
+        </Toast>
+      )}
     </Page>
   );
 }

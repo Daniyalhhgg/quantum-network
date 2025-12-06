@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// ---------- Styled Components (bilkul same rakhe hain) ----------
+// ---------- Styled Components (same as before) ----------
 const Page = styled.div`
   min-height: 100vh;
   background: radial-gradient(circle at 20% 20%, #0b1224, #060b16 80%);
@@ -116,12 +116,12 @@ const BottomBox = styled(motion.div)`
   box-shadow: 0 6px 20px rgba(0, 245, 160, 0.25);
   z-index: 100;
 
-  /* ویب/ڈیسکٹاپ کے لیے */
   @media (min-width: 768px) {
     left: 50%;
     bottom: 15px;
   }
 `;
+
 const PillContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -175,6 +175,28 @@ const Skeleton = styled.div`
   @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 `;
 
+// ---------- Toast Component ----------
+const Toast = styled(motion.div)`
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 245, 160, 0.18);
+  color: #00f5a0;
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 1px solid rgba(0, 245, 160, 0.3);
+  font-weight: 600;
+  font-size: 0.9rem;
+  z-index: 9999;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 20px rgba(0, 245, 160, 0.3);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
 // ---------- Helpers ----------
 const formatQNT = (n) => (n == null ? "0.000" : Number(n).toFixed(3));
 const msToHMS = (ms) => {
@@ -207,6 +229,7 @@ export default function Dashboard() {
   const [kycStatus, setKycStatus] = useState("not_submitted");
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [toast, setToast] = useState(null); // NEW TOAST STATE
 
   const mountedRef = useRef(true);
   const pollRef = useRef(null);
@@ -288,7 +311,8 @@ export default function Dashboard() {
       const left = 24 * 60 * 60 * 1000 - (Date.now() - (data.mining?.lastStartTime || Date.now()));
       setTimeLeft(Math.max(Math.ceil(left / 1000), 0));
     } catch (e) {
-      alert(e?.response?.data?.message || "Failed to start mining");
+      setToast(e?.response?.data?.message || "Failed to start mining");
+      setTimeout(() => setToast(null), 3000);
     } finally {
       setActionLoading(false);
     }
@@ -304,9 +328,23 @@ export default function Dashboard() {
       setIsMining(false);
       setTimeLeft(null);
     } catch (e) {
-      alert(e?.response?.data?.message || "Claim failed");
+      setToast(e?.response?.data?.message || "Claim failed");
+      setTimeout(() => setToast(null), 3000);
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  // COPY REFERRAL LINK WITH TOAST
+  const copyReferralLink = async () => {
+    const link = `${window.location.origin}/register?ref=${user?.referralCode}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setToast("Copied to clipboard!");
+      setTimeout(() => setToast(null), 2000);
+    } catch (err) {
+      setToast("Failed to copy");
+      setTimeout(() => setToast(null), 3000);
     }
   };
 
@@ -335,22 +373,22 @@ export default function Dashboard() {
           <CardValue>{isLoading ? <Skeleton w="80px" /> : isMining ? "Active" : "Stopped"}</CardValue>
           <SecondaryText>Earn 1 QNT every 24 hours</SecondaryText>
           {!isMining ? (
-            <NeonButton onClick={startMining} disabled={actionLoading || isLoading}>
+            <NeonButton onClick={startMining} disabled={actionLoading || isLoading} whileTap={{ scale: 0.95 }}>
               {actionLoading ? "Starting..." : "Start Mining"}
             </NeonButton>
           ) : (
-            <NeonButton disabled={actionLoading}>
+            <NeonButton disabled={actionLoading} whileTap={{ scale: 0.95 }}>
               {countdown === "Ready!" ? (actionLoading ? "Claiming..." : "Claim Now") : countdown}
             </NeonButton>
           )}
           {isMining && countdown === "Ready!" && (
-            <NeonButton onClick={claimReward} style={{ marginTop: "8px" }}>
+            <NeonButton onClick={claimReward} style={{ marginTop: "8px" }} whileTap={{ scale: 0.95 }}>
               Claim Reward
             </NeonButton>
           )}
         </Card>
 
-        {/* REAL REFERRAL CODE */}
+        {/* REFERRAL CODE CARD */}
         <Card initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <CardTitle>Your Referral Code</CardTitle>
           <CardValue>{user?.referralCode || "Loading..."}</CardValue>
@@ -361,17 +399,15 @@ export default function Dashboard() {
             </span>
           </SecondaryText>
           <NeonButton
-            onClick={() => {
-              navigator.clipboard.writeText(`${window.location.origin}/register?ref=${user?.referralCode}`);
-              alert("Copied to clipboard!");
-            }}
-            disabled={!user?.referralCode}
+            onClick={copyReferralLink}
+            disabled={!user?.referralCode || actionLoading}
+            whileTap={{ scale: 0.95 }}
           >
             Copy Link
           </NeonButton>
         </Card>
 
-        {/* REAL REFERRALS LIST */}
+        {/* REFERRALS LIST */}
         <Card initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <CardTitle>Your Referrals ({referrals.length})</CardTitle>
           <CardValue>+{formatQNT(totalReferralEarned)} QNT Earned</CardValue>
@@ -407,7 +443,7 @@ export default function Dashboard() {
           }}>
             {isLoading ? <Skeleton w="90px" /> : kycStatus.replace("_", " ").toUpperCase()}
           </CardValue>
-          <NeonButton onClick={goToKyc}>
+          <NeonButton onClick={goToKyc} whileTap={{ scale: 0.95 }}>
             {kycStatus === "approved" ? "View KYC" : "Complete KYC"}
           </NeonButton>
         </Card>
@@ -423,10 +459,22 @@ export default function Dashboard() {
           <Pill><PillTitle>Referrals</PillTitle><PillValue>{referrals.length}</PillValue></Pill>
         </PillContainer>
         <Actions>
-          <ActionButton onClick={openSend}>Send</ActionButton>
-          <ActionButton onClick={openWallet}>Receive</ActionButton>
+          <ActionButton onClick={openSend} whileTap={{ scale: 0.95 }}>Send</ActionButton>
+          <ActionButton onClick={openWallet} whileTap={{ scale: 0.95 }}>Receive</ActionButton>
         </Actions>
       </BottomBox>
+
+      {/* TOAST NOTIFICATION */}
+      {toast && (
+        <Toast
+          initial={{ opacity: 0, y: 50, scale: 0.8 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -20, scale: 0.8 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        >
+          {toast}
+        </Toast>
+      )}
     </Page>
   );
 }

@@ -1,3 +1,4 @@
+// src/pages/Login.jsx → FINAL + FORGET PASSWORD LINK + PREMIUM
 import React, { useContext, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { AuthContext } from "../context/AuthContext";
@@ -285,6 +286,26 @@ const Footer = styled.div`
   }
 `;
 
+// ===== FORGET PASSWORD LINK (NEW) =====
+const ForgotLink = styled(Link)`
+  display: block;
+  text-align: right;
+  margin-top: 0.5rem;
+  color: #00f5a0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+    margin-top: 0.4rem;
+  }
+`;
+
 // ===== SUCCESS MODAL =====
 const SuccessModal = styled.div`
   position: fixed;
@@ -412,11 +433,11 @@ const Confetti = styled.div`
   }
 `;
 
+// ===== MAIN COMPONENT =====
 const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // 🔥 USE BACKEND URL FROM ENV (IMPORTANT)
   const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   const [form, setForm] = useState({ email: "", password: "" });
@@ -512,6 +533,11 @@ const Login = () => {
             <Label>Password</Label>
           </InputWrapper>
 
+          {/* FORGET PASSWORD LINK */}
+          <ForgotLink to="/forgot-password">
+            Forgot Password?
+          </ForgotLink>
+
           {error && <ErrorText>{error}</ErrorText>}
 
           <LoginButton type="submit" disabled={loading}>
@@ -535,7 +561,7 @@ const Login = () => {
             />
           ))}
           <ModalContent>
-            <CheckIcon>✓</CheckIcon>
+            <CheckIcon>Checkmark</CheckIcon>
             <SuccessTitle>Welcome Back!</SuccessTitle>
             <SuccessMessage>
               Hello <strong>{userName}</strong>,<br />
