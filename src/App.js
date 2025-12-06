@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthContext } from "./context/AuthContext"; // AuthContext import karein
 
 import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
@@ -15,20 +16,39 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
-
+import ContactUs from "./pages/ContactUs";
 // ✅ Protected route wrapper (prevents access without login)
 import ProtectedRoute from "./components/common/ProtectedRoute";
 
 const App = () => {
+  const { user } = useContext(AuthContext); // User context get karein
+
   return (
     <>
       <Navbar />
       <main style={{ minHeight: "80vh", padding: "20px" }}>
         <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          {/* Home Route - Condition based on login status */}
+          <Route 
+            path="/" 
+            element={
+              user ? <Navigate to="/dashboard" replace /> : <Home />
+            } 
+          />
+          
+          {/* Login/Register Routes - Redirect if already logged in */}
+          <Route 
+            path="/login" 
+            element={
+              user ? <Navigate to="/dashboard" replace /> : <Login />
+            } 
+          />
+          <Route 
+            path="/register" 
+            element={
+              user ? <Navigate to="/dashboard" replace /> : <Register />
+            } 
+          />
 
           {/* Protected Routes */}
           <Route
@@ -88,6 +108,15 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+              <Route
+            path="/ContactUs"
+            element={
+              <ProtectedRoute>
+                <ContactUs/>
+              </ProtectedRoute>
+            }
+          />
+
 
           {/* Redirect unknown routes */}
           <Route path="*" element={<Navigate to="/" />} />

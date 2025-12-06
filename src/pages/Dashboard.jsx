@@ -99,8 +99,8 @@ const NeonButton = styled(motion.button)`
 
 const BottomBox = styled(motion.div)`
   position: fixed;
-  left: 50%;
-  bottom: 15px;
+  left: 7.5%;
+  bottom: 55px;
   transform: translateX(-50%);
   width: 80%;
   max-width: 420px;
@@ -115,8 +115,13 @@ const BottomBox = styled(motion.div)`
   backdrop-filter: blur(12px);
   box-shadow: 0 6px 20px rgba(0, 245, 160, 0.25);
   z-index: 100;
-`;
 
+  /* ویب/ڈیسکٹاپ کے لیے */
+  @media (min-width: 768px) {
+    left: 50%;
+    bottom: 15px;
+  }
+`;
 const PillContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
