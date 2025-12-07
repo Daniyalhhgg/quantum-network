@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// ---------- Styled Components (same as before) ----------
+// ---------- Styled Components (unchanged) ----------
 const Page = styled.div`
   min-height: 100vh;
   background: radial-gradient(circle at 20% 20%, #0b1224, #060b16 80%);
@@ -15,7 +15,6 @@ const Page = styled.div`
   align-items: center;
   font-family: "Inter", sans-serif;
 `;
-
 const Header = styled(motion.div)`
   width: 100%;
   max-width: 1200px;
@@ -32,7 +31,6 @@ const Header = styled(motion.div)`
   flex-wrap: wrap;
   gap: 0.8rem;
 `;
-
 const Title = styled.h1`
   font-size: clamp(1.3rem, 2.5vw, 2rem);
   font-weight: 800;
@@ -41,14 +39,12 @@ const Title = styled.h1`
   -webkit-text-fill-color: transparent;
   margin: 0;
 `;
-
 const Balance = styled.div`
   font-size: clamp(1rem, 1.8vw, 1.3rem);
   font-weight: 700;
   color: #bfffe6;
   text-align: right;
 `;
-
 const Grid = styled.div`
   width: 100%;
   max-width: 1200px;
@@ -57,7 +53,6 @@ const Grid = styled.div`
   gap: clamp(0.8rem, 2vw, 1.2rem);
   margin-bottom: 6rem;
 `;
-
 const Card = styled(motion.div)`
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -65,26 +60,22 @@ const Card = styled(motion.div)`
   padding: clamp(1rem, 2vw, 1.3rem);
   backdrop-filter: blur(8px);
 `;
-
 const CardTitle = styled.div`
   color: #00f5a0;
   font-weight: 700;
   margin-bottom: 0.5rem;
   font-size: clamp(0.9rem, 1.2vw, 1rem);
 `;
-
 const CardValue = styled.div`
-  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-size: clamp(1.2rem, 2vw, 1.5!rem);
   font-weight: 800;
   margin-bottom: 0.4rem;
 `;
-
 const SecondaryText = styled.div`
   color: #9fb7c7;
   font-size: clamp(0.85rem, 1vw, 0.95rem);
   line-height: 1.4;
 `;
-
 const NeonButton = styled(motion.button)`
   padding: clamp(0.45rem, 1vw, 0.6rem) clamp(0.8rem, 2vw, 1rem);
   border-radius: 8px;
@@ -96,7 +87,6 @@ const NeonButton = styled(motion.button)`
   cursor: pointer;
   transition: all 0.15s ease;
 `;
-
 const BottomBox = styled(motion.div)`
   position: fixed;
   left: 7.5%;
@@ -115,13 +105,11 @@ const BottomBox = styled(motion.div)`
   backdrop-filter: blur(12px);
   box-shadow: 0 6px 20px rgba(0, 245, 160, 0.25);
   z-index: 100;
-
   @media (min-width: 768px) {
     left: 50%;
     bottom: 15px;
   }
 `;
-
 const PillContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -129,7 +117,6 @@ const PillContainer = styled.div`
   gap: clamp(0.3rem, 1vw, 0.6rem);
   width: 100%;
 `;
-
 const Pill = styled.div`
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(0, 245, 160, 0.15);
@@ -140,18 +127,15 @@ const Pill = styled.div`
   min-width: 75px;
   font-size: clamp(0.7rem, 1vw, 0.85rem);
 `;
-
 const PillTitle = styled.div`
   color: #9fb7c7;
   font-size: clamp(0.65rem, 0.9vw, 0.75rem);
 `;
-
 const PillValue = styled.div`
   font-weight: 700;
   color: #bfffe6;
   font-size: clamp(0.75rem, 1vw, 0.9rem);
 `;
-
 const Actions = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -159,12 +143,10 @@ const Actions = styled.div`
   justify-content: center;
   width: 100%;
 `;
-
 const ActionButton = styled(NeonButton)`
   flex: 1 1 45%;
   min-width: 90px;
 `;
-
 const Skeleton = styled.div`
   height: ${(p) => p.h || "16px"};
   width: ${(p) => p.w || "100%"};
@@ -174,8 +156,6 @@ const Skeleton = styled.div`
   animation: loading 1.5s infinite;
   @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 `;
-
-// ---------- Toast Component ----------
 const Toast = styled(motion.div)`
   position: fixed;
   bottom: 90px;
@@ -229,7 +209,7 @@ export default function Dashboard() {
   const [kycStatus, setKycStatus] = useState("not_submitted");
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [toast, setToast] = useState(null); // NEW TOAST STATE
+  const [toast, setToast] = useState(null);
 
   const mountedRef = useRef(true);
   const pollRef = useRef(null);
@@ -312,9 +292,9 @@ export default function Dashboard() {
       setTimeLeft(Math.max(Math.ceil(left / 1000), 0));
     } catch (e) {
       setToast(e?.response?.data?.message || "Failed to start mining");
-      setTimeout(() => setToast(null), 3000);
     } finally {
       setActionLoading(false);
+      setTimeout(() => setToast(null), 3000);
     }
   };
 
@@ -323,28 +303,44 @@ export default function Dashboard() {
     setActionLoading(true);
     try {
       const { data } = await api.post("/mining/claim");
-      setBalance(data.balance ?? balance);
-      setPending(data.pendingBalance ?? pending);
+      setPending(data.pendingBalance);
+      setBalance(data.balance);
       setIsMining(false);
       setTimeLeft(null);
+      setToast(`+1 QNT claimed to Pending!`);
     } catch (e) {
       setToast(e?.response?.data?.message || "Claim failed");
-      setTimeout(() => setToast(null), 3000);
     } finally {
       setActionLoading(false);
+      setTimeout(() => setToast(null), 3000);
     }
   };
 
-  // COPY REFERRAL LINK WITH TOAST
+  const moveToWallet = async () => {
+    if (actionLoading || kycStatus !== "approved" || pending <= 0) return;
+    setActionLoading(true);
+    try {
+      const { data } = await api.post("/mining/move-to-wallet");
+      setBalance(data.balance);
+      setPending(0);
+      setToast(`Moved ${formatQNT(pending)} QNT to wallet!`);
+    } catch (e) {
+      setToast(e?.response?.data?.message || "Move failed");
+    } finally {
+      setActionLoading(false);
+      setTimeout(() => setToast(null), 3000);
+    }
+  };
+
   const copyReferralLink = async () => {
     const link = `${window.location.origin}/register?ref=${user?.referralCode}`;
     try {
       await navigator.clipboard.writeText(link);
       setToast("Copied to clipboard!");
-      setTimeout(() => setToast(null), 2000);
     } catch (err) {
       setToast("Failed to copy");
-      setTimeout(() => setToast(null), 3000);
+    } finally {
+      setTimeout(() => setToast(null), 2000);
     }
   };
 
@@ -352,7 +348,7 @@ export default function Dashboard() {
   const openSend = () => navigate("/wallet", { state: { openSendModal: true } });
   const openWallet = () => navigate("/wallet");
 
-  const totalReferralEarned = useMemo(() => 
+  const totalReferralEarned = useMemo(() =>
     referrals.reduce((sum, r) => sum + (r.reward || 1), 0), [referrals]
   );
 
@@ -366,12 +362,12 @@ export default function Dashboard() {
       </Header>
 
       <Grid>
-
         {/* Mining Card */}
         <Card initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <CardTitle>Mining Status</CardTitle>
           <CardValue>{isLoading ? <Skeleton w="80px" /> : isMining ? "Active" : "Stopped"}</CardValue>
           <SecondaryText>Earn 1 QNT every 24 hours</SecondaryText>
+
           {!isMining ? (
             <NeonButton onClick={startMining} disabled={actionLoading || isLoading} whileTap={{ scale: 0.95 }}>
               {actionLoading ? "Starting..." : "Start Mining"}
@@ -381,14 +377,42 @@ export default function Dashboard() {
               {countdown === "Ready!" ? (actionLoading ? "Claiming..." : "Claim Now") : countdown}
             </NeonButton>
           )}
+
+          {/* Claim Button */}
           {isMining && countdown === "Ready!" && (
-            <NeonButton onClick={claimReward} style={{ marginTop: "8px" }} whileTap={{ scale: 0.95 }}>
-              Claim Reward
+            <NeonButton
+              onClick={claimReward}
+              style={{ marginTop: "8px" }}
+              whileTap={{ scale: 0.95 }}
+              disabled={actionLoading}
+            >
+              {actionLoading ? "Claiming..." : "Claim to Pending"}
+            </NeonButton>
+          )}
+
+          {/* Move to Wallet Button */}
+          {pending > 0 && (
+            <NeonButton
+              onClick={moveToWallet}
+              disabled={actionLoading || kycStatus !== "approved" || pending <= 0}
+              style={{
+                marginTop: "8px",
+                borderColor: kycStatus === "approved" ? "#00f5a0" : "#ff6b6b",
+                color: kycStatus === "approved" ? "#00f5a0" : "#ff6b6b"
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {actionLoading
+                ? "Moving..."
+                : kycStatus === "approved"
+                  ? `Move ${formatQNT(pending)} to Wallet`
+                  : "KYC Required"
+              }
             </NeonButton>
           )}
         </Card>
 
-        {/* REFERRAL CODE CARD */}
+        {/* Referral Code Card */}
         <Card initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <CardTitle>Your Referral Code</CardTitle>
           <CardValue>{user?.referralCode || "Loading..."}</CardValue>
@@ -407,7 +431,7 @@ export default function Dashboard() {
           </NeonButton>
         </Card>
 
-        {/* REFERRALS LIST */}
+        {/* Referrals List */}
         <Card initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <CardTitle>Your Referrals ({referrals.length})</CardTitle>
           <CardValue>+{formatQNT(totalReferralEarned)} QNT Earned</CardValue>
@@ -447,7 +471,6 @@ export default function Dashboard() {
             {kycStatus === "approved" ? "View KYC" : "Complete KYC"}
           </NeonButton>
         </Card>
-
       </Grid>
 
       {/* Bottom Fixed Box */}
@@ -464,7 +487,7 @@ export default function Dashboard() {
         </Actions>
       </BottomBox>
 
-      {/* TOAST NOTIFICATION */}
+      {/* Toast */}
       {toast && (
         <Toast
           initial={{ opacity: 0, y: 50, scale: 0.8 }}
