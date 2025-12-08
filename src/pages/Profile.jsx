@@ -1,331 +1,314 @@
-// src/pages/Profile.jsx → FINAL RESPONSIVE + TOAST VERSION
-import React, { useState, useEffect } from "react";
+// src/pages/Profile.jsx — Updated 2025 Refresh-Safe + 30% Smaller UI
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { motion } from "framer-motion";
-import {
-  FiCamera,
-  FiMapPin,
-  FiSave,
-  FiUser,
-  FiMail,
-  FiGlobe,
-  FiPhone,
-  FiShield,
-  FiCheck,
-} from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+import { FaCamera, FaCheckCircle } from "react-icons/fa";
+import { MdError } from "react-icons/md";
+
+/* ---------------------------- STYLES ---------------------------- */
+
+const AVATAR_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const Page = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0e1f 0%, #050812 100%);
-  color: #e0f8ff;
-  font-family: "Inter", sans-serif;
-  padding: clamp(1rem, 3vw, 2rem);
+  background: linear-gradient(145deg, #0a0f1c 0%, #0d152b 100%);
+  padding: 0.7rem;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: flex-start;
+  font-family: "Inter", sans-serif;
+  color: #e6edf7;
 `;
 
-const Container = styled(motion.div)`
+const Card = styled(motion.div)`
   width: 100%;
-  max-width: 600px;
-  background: rgba(15, 25, 50, 0.6);
+  max-width: 490px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 22px;
+  padding: 1.4rem;
+  border: 1px solid rgba(0, 255, 200, 0.18);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 245, 160, 0.3);
-  border-radius: 24px;
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  box-shadow: 0 20px 60px rgba(0, 245, 160, 0.15);
-  margin: 0 auto;
+  box-shadow: 0 20px 56px rgba(0,0,0,0.45);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+
+  @media (max-width: 768px) { padding: 1.2rem; }
+  @media (max-width: 480px) { padding: 0.85rem; border-radius: 16px; }
 `;
 
-const Title = styled.h1`
+const Title = styled.h2`
   text-align: center;
-  font-size: clamp(1.8rem, 5vw, 2.4rem);
-  font-weight: 900;
-  background: linear-gradient(90deg, #00f5a0, #00d9f5);
+  font-size: 1.4rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #00f4b0, #00d5ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
+  @media (max-width: 480px) { font-size: 1.2rem; }
 `;
 
-const Subtitle = styled.p`
+const EmailBox = styled.div`
   text-align: center;
-  color: #88aabb;
-  font-size: clamp(0.9rem, 2.5vw, 1rem);
-  margin-bottom: 2rem;
+  background: rgba(255,255,255,0.08);
+  padding: 0.55rem 0.7rem;
+  border-radius: 9px;
+  margin: 0.5rem auto 1rem;
+  font-size: 0.63rem;
+  color: #b7d9f5;
+  border: 1px solid rgba(255,255,255,0.1);
+
+  @media (max-width: 480px) {
+    font-size: 0.55rem;
+    padding: 0.45rem 0.6rem;
+    margin: 0.4rem auto 0.8rem;
+  }
 `;
 
 const AvatarWrapper = styled.div`
   position: relative;
-  width: clamp(100px, 25vw, 140px);
-  height: clamp(100px, 25vw, 140px);
-  margin: 0 auto 2rem;
+  width: 98px;
+  height: 98px;
+  margin: -30px auto 0.8rem;
+
+  @media (max-width: 480px) {
+    width: 77px;
+    height: 77px;
+    margin: -20px auto 0.6rem;
+  }
 `;
 
 const Avatar = styled.div`
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: ${p => p.src ? `url(${p.src}) center/cover no-repeat` : "linear-gradient(135deg, #00f5a0, #00d9f5)"};
-  border: 5px solid #00f5a0;
-  box-shadow: 0 0 50px rgba(0, 245, 160, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(2rem, 6vw, 4rem);
-  font-weight: bold;
-  color: #000;
+  background: ${(p) =>
+    p.src
+      ? `url(${p.src}) center/cover no-repeat`
+      : "linear-gradient(135deg, #00f4b0, #00d5ff)"};
+  border: 2.8px solid #00f4c0;
+  box-shadow: 0 0 38px rgba(0,255,200,0.6);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.3s ease;
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 45px rgba(0,255,200,0.75);
+  }
 `;
 
 const CameraBtn = styled.label`
   position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background: #00f5a0;
-  color: #000;
-  width: 44px;
-  height: 44px;
+  bottom: 3px;
+  right: 3px;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(145deg, #00f4c0, #00e0ff);
   border-radius: 50%;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.84rem;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 245, 160, 0.6);
-  input { display: none; }
+  box-shadow: 0 4px 18px rgba(0,255,200,0.65);
+  transition: transform 0.25s ease;
+  &:hover { transform: scale(1.07); }
+
+  @media (max-width: 480px) { width: 22px; height: 22px; font-size: 0.7rem; }
 `;
 
-const InputGroup = styled.div`
-  position: relative;
-  margin-bottom: clamp(0.8rem, 2vw, 1.2rem);
-`;
-
-const Icon = styled.div`
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #00f5a0;
-  font-size: clamp(1.1rem, 3vw, 1.3rem);
-  z-index: 2;
+const Label = styled.label`
+  color: #00e7c2;
+  font-weight: 600;
+  font-size: 0.7rem;
+  margin: 0.5rem 0 0.2rem;
+  @media (max-width: 480px) { font-size: 0.65rem; }
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: clamp(14px, 3vw, 18px) clamp(14px, 3vw, 18px) clamp(14px, 3vw, 18px) clamp(48px, 10vw, 56px);
-  border-radius: 16px;
-  border: 1px solid rgba(0, 245, 160, 0.3);
-  background: rgba(10, 20, 40, 0.7);
+  width: 95%;
+  padding: 0.7rem 0.85rem;
+  border-radius: 11px;
+  border: 1px solid rgba(0,255,200,0.25);
+  background: rgba(255,255,255,0.07);
   color: #fff;
-  font-size: clamp(0.9rem, 2.5vw, 1rem);
-  outline: none;
-  transition: all 0.3s;
-  box-sizing: border-box;
+  font-size: 0.7rem;
+  transition: all 0.25s ease;
 
-  &:focus {
-    border-color: #00f5a0;
-    box-shadow: 0 0 25px rgba(0, 245, 160, 0.4);
-  }
-
-  &::placeholder {
-    color: #777;
-  }
+  &:focus { outline: none; border-color: #00f4c0; box-shadow: 0 0 8px rgba(0,255,200,0.4); }
+  @media (max-width: 480px) { width: 95%; padding: 0.55rem 0.7rem; font-size: 0.65rem; }
 `;
 
-const LocationBox = styled.div`
-  background: ${p => p.allowed ? "rgba(0, 245, 160, 0.15)" : "rgba(0, 245, 160, 0.08)"};
-  border: 2px dashed ${p => p.allowed ? "#00f5a0" : "#00f5a0"};
-  padding: clamp(1.2rem, 3vw, 1.8rem);
-  border-radius: 18px;
-  text-align: center;
-  cursor: ${p => p.allowed ? "default" : "pointer"};
-  transition: all 0.3s;
-  font-size: clamp(0.9rem, 2.5vw, 1rem);
+const TextArea = styled.textarea`
+  width: 95%;
+  padding: 0.7rem 0.85rem;
+  border-radius: 11px;
+  border: 1px solid rgba(0,255,200,0.25);
+  background: rgba(255,255,255,0.07);
+  color: #fff;
+  font-size: 0.7rem;
+  min-height: 84px;
+  transition: all 0.25s ease;
 
-  p {
-    margin: clamp(8px, 2vw, 12px) 0 0;
-    font-weight: bold;
-  }
-
-  small {
-    font-size: 0.85em;
-    color: #88aabb;
-  }
+  &:focus { outline: none; border-color: #00f4c0; box-shadow: 0 0 8px rgba(0,255,200,0.4); }
+  @media (max-width: 480px) { padding: 0.55rem 0.7rem; font-size: 0.65rem; min-height: 70px; }
 `;
 
 const SaveBtn = styled(motion.button)`
   width: 100%;
-  padding: clamp(14px, 3vw, 18px);
-  margin-top: 2rem;
-  border: none;
-  border-radius: 50px;
-  background: linear-gradient(90deg, #00f5a0, #00d9f5);
-  color: #000;
+  padding: 0.85rem;
+  margin-top: 1.2rem;
+  border-radius: 13px;
+  font-size: 0.77rem;
   font-weight: 800;
-  font-size: clamp(1.1rem, 3vw, 1.3rem);
+  border: none;
   cursor: pointer;
-  box-shadow: 0 10px 40px rgba(0, 245, 160, 0.5);
+  background: linear-gradient(90deg, #00f4b0, #00d5ff);
+  transition: all 0.25s ease;
+  &:hover { box-shadow: 0 5px 16px rgba(0,255,200,0.5); transform: translateY(-1px); }
+  @media (max-width: 480px) { font-size: 0.7rem; padding: 0.7rem; }
 `;
 
-// TOAST
 const Toast = styled(motion.div)`
   position: fixed;
-  bottom: 90px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 245, 160, 0.18);
-  color: #00f5a0;
-  padding: 10px 20px;
-  border-radius: 50px;
-  border: 1px solid rgba(0, 245, 160, 0.3);
-  font-weight: 600;
-  font-size: 0.9rem;
-  z-index: 9999;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 0 20px rgba(0, 245, 160, 0.3);
-  white-space: nowrap;
+  top: 16px;
+  right: 12px;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  font-size: 0.65rem;
+  z-index: 9999;
+
+  background: ${(p) => p.success ? "linear-gradient(45deg,#00f4b0,#00d5ff)" : "linear-gradient(45deg,#ff4b4b,#ff9b30)"};
+
+  @media (max-width: 480px) { top: 10px; right: 8px; font-size: 0.6rem; padding: 0.55rem 0.8rem; }
 `;
 
-export default function Profile() {
-  const [profile, setProfile] = useState({
-    name: "", lastName: "", country: "", phone: "", idCard: "", email: "", photo: "", ip: "", allowed: false
-  });
-  const [toast, setToast] = useState(null);
+/* ---------------------------- API CLIENT ---------------------------- */
 
-  const showToast = (msg, duration = 2000) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), duration);
-  };
+const api = axios.create({ baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000/api" });
+
+/* ---------------------------- COMPONENT ---------------------------- */
+
+export default function ProfilePage() {
+  const fileRef = useRef(null);
+  const [data, setData] = useState({ fullName:"", phone:"", idNumber:"", dob:"", bio:"", avatar:"", email:"" });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState(null);
+  const token = JSON.parse(localStorage.getItem("userInfo") || "{}")?.token;
 
   useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-    const savedProfile = JSON.parse(localStorage.getItem("userProfile") || "{}");
-
-    setProfile({
-      email: userInfo.email || "user@example.com",
-      name: savedProfile.name || userInfo.name || "",
-      lastName: savedProfile.lastName || "",
-      country: savedProfile.country || "",
-      phone: savedProfile.phone || "",
-      idCard: savedProfile.idCard || "",
-      photo: savedProfile.photo || "",
-      ip: savedProfile.ip || "",
-      allowed: savedProfile.allowed || false
-    });
+    if (!token) return;
+    api.defaults.headers.Authorization = `Bearer ${token}`;
+    (async () => {
+      try {
+        const res = await api.get("/profile/my");
+        const p = res.data.profile;
+        setData({
+          fullName: p.fullName || "",
+          phone: p.phone || "",
+          idNumber: p.idNumber || "",
+          dob: p.dob ? p.dob.split("T")[0] : "",
+          bio: p.bio || "",
+          avatar: p.avatar || "",
+          email: p.email || "",
+        });
+      } catch (e) { showToast("Failed to load profile", false); }
+      setLoading(false);
+    })();
   }, []);
 
-  const handlePhoto = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfile(p => ({ ...p, photo: reader.result }));
-        showToast("Photo updated!");
-      };
-      reader.readAsDataURL(file);
-    }
+  const showToast = (msg, success = true) => { setToast({ msg, success }); setTimeout(() => setToast(null), 3500); }
+
+  const saveProfile = async () => {
+    if (!data.fullName || !data.phone || !data.idNumber.trim()) return showToast("Full Name, Phone & ID Number are required!", false);
+    setSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append("fullName", data.fullName);
+      formData.append("phone", data.phone);
+      formData.append("idNumber", data.idNumber);
+      formData.append("dob", data.dob);
+      formData.append("bio", data.bio);
+      if (fileRef.current?.files?.[0]) formData.append("avatar", fileRef.current.files[0]);
+      await api.post("/profile/update", formData);
+      showToast("Profile updated successfully!");
+    } catch (e) { showToast(e.response?.data?.message || "Update failed", false); }
+    setSaving(false);
   };
 
-  const detectLocation = () => {
-    if (profile.allowed) return;
-    showToast("Detecting location...");
-    fetch("https://ipapi.co/json/")
-      .then(r => r.json())
-      .then(data => {
-        setProfile(p => ({
-          ...p,
-          ip: data.ip,
-          country: data.country_name || "Unknown",
-          allowed: true
-        }));
-        showToast(`Device Locked! ${data.country_name} • ${data.ip}`);
-      })
-      .catch(() => showToast("Failed to detect location"));
-  };
-
-  const save = () => {
-    localStorage.setItem("userProfile", JSON.stringify(profile));
-    showToast("Profile Saved Successfully!");
-  };
+  if (loading) return (
+    <Page>
+      <Card>
+        <div style={{ textAlign: "center", padding: "2.8rem" }}><h3>Loading profile...</h3></div>
+      </Card>
+    </Page>
+  );
 
   return (
     <Page>
-      <Container initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+      <AnimatePresence>
+        {toast && (
+          <Toast success={toast.success} initial={{ x: 300 }} animate={{ x: 0 }} exit={{ x: 300 }}>
+            {toast.success ? <FaCheckCircle /> : <MdError />}
+            {toast.msg}
+          </Toast>
+        )}
+      </AnimatePresence>
+
+      <Card initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}>
         <Title>My Profile</Title>
-        <Subtitle>1 Device = 1 Account • Complete your info</Subtitle>
+        <EmailBox>Logged in as: {data.email}</EmailBox>
 
         <AvatarWrapper>
-          <Avatar src={profile.photo}>
-            {!profile.photo && (profile.name.charAt(0) || "U")}
-          </Avatar>
-          <CameraBtn>
-            <FiCamera size={20} />
-            <input type="file" accept="image/*" onChange={handlePhoto} />
-          </CameraBtn>
+          <Avatar
+            src={data.avatar ? (data.avatar.startsWith("http") ? data.avatar : `${AVATAR_BASE}${data.avatar}?t=${Date.now()}`) : ""}
+            onClick={() => fileRef.current.click()}
+          />
+          <CameraBtn htmlFor="avatarInput"><FaCamera /></CameraBtn>
+          <input
+            id="avatarInput"
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onloadend = () => setData((prev) => ({
+                ...prev,
+                avatar: reader.result.includes("data:") ? reader.result : `${AVATAR_BASE}${reader.result}?t=${Date.now()}`
+              }));
+              reader.readAsDataURL(file);
+            }}
+          />
         </AvatarWrapper>
 
-        <InputGroup>
-          <Icon><FiMail /></Icon>
-          <Input value={profile.email} disabled placeholder="Email" />
-        </InputGroup>
+        <Label>Full Name</Label>
+        <Input value={data.fullName} onChange={(e) => setData({ ...data, fullName: e.target.value })} />
 
-        <InputGroup>
-          <Icon><FiUser /></Icon>
-          <Input placeholder="First Name" value={profile.name} onChange={e => setProfile(p => ({...p, name: e.target.value}))} />
-        </InputGroup>
+        <Label>Phone</Label>
+        <Input value={data.phone} onChange={(e) => setData({ ...data, phone: e.target.value })} />
 
-        <InputGroup>
-          <Icon><FiUser /></Icon>
-          <Input placeholder="Last Name" value={profile.lastName} onChange={e => setProfile(p => ({...p, lastName: e.target.value}))} />
-        </InputGroup>
+        <Label>ID Number (CNIC / Passport)</Label>
+        <Input value={data.idNumber} onChange={(e) => setData({ ...data, idNumber: e.target.value })} />
 
-        <InputGroup>
-          <Icon><FiGlobe /></Icon>
-          <Input placeholder="Country" value={profile.country} disabled={profile.allowed} />
-        </InputGroup>
+        <Label>Date of Birth</Label>
+        <Input type="date" value={data.dob} onChange={(e) => setData({ ...data, dob: e.target.value })} />
 
-        <InputGroup>
-          <Icon><FiPhone /></Icon>
-          <Input placeholder="Phone Number" value={profile.phone} onChange={e => setProfile(p => ({...p, phone: e.target.value}))} />
-        </InputGroup>
+        <Label>Bio</Label>
+        <TextArea maxLength={250} value={data.bio} onChange={(e) => setData({ ...data, bio: e.target.value })} />
+        <small style={{ color: "#aaa" }}>{data.bio.length}/250</small>
 
-        <InputGroup>
-          <Icon><FiShield /></Icon>
-          <Input placeholder="ID Card / Passport Number" value={profile.idCard} onChange={e => setProfile(p => ({...p, idCard: e.target.value}))} />
-        </InputGroup>
-
-        <LocationBox allowed={profile.allowed} onClick={detectLocation}>
-          {profile.allowed ? (
-            <>
-              <FiCheck size={36} color="#00f5a0" />
-              <p>Device Verified</p>
-              <small>{profile.country} • {profile.ip}</small>
-            </>
-          ) : (
-            <>
-              <FiMapPin size={36} color="#00f5a0" />
-              <p>Tap to Lock Device</p>
-              <small>1 Device = 1 Account Policy</small>
-            </>
-          )}
-        </LocationBox>
-
-        <SaveBtn whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={save}>
-          <FiSave style={{ marginRight: "10px" }} /> Save Profile
+        <SaveBtn whileTap={{ scale: 0.95 }} disabled={saving} onClick={saveProfile}>
+          {saving ? "Saving..." : "Save Profile"}
         </SaveBtn>
-      </Container>
-
-      {/* TOAST */}
-      {toast && (
-        <Toast
-          initial={{ opacity: 0, y: 50, scale: 0.8 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -20, scale: 0.8 }}
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        >
-          {toast}
-        </Toast>
-      )}
+      </Card>
     </Page>
   );
 }
