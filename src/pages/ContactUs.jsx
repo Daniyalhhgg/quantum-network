@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import axios from "axios";
@@ -156,7 +157,7 @@ const ContactForm = () => {
           </Form>
         </FormWrapper>
 
-        <Footer>© {new Date().getFullYear()} <strong>Quantum Network Pro</strong> — Secure & Fast Blockchain</Footer>
+        <Footer>© {new Date().getFullYear()} <strong>Pytro Network Pro</strong> — Secure & Fast Blockchain</Footer>
       </Content>
     </PageContainer>
   );

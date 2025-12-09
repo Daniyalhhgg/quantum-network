@@ -292,13 +292,13 @@ const Home = () => {
     <GlobalWrapper>
       <Container>
         <Header>
-          <Logo>Quantum Network</Logo>
+          <Logo>Pytro Network</Logo>
         </Header>
 
         <Main>
           <HeroGrid>
             <Left>
-              <Title>Welcome to Quantum Network</Title>
+              <Title>Welcome to Pytro Network</Title>
               <Subtitle>
                 Next-gen blockchain with mobile-first mining, Trust Circles, ethical staking & privacy-first data.
               </Subtitle>
@@ -352,7 +352,7 @@ const Home = () => {
 
                 {showTerms && (
                   <ToggleText>
-                    <strong>Terms of Service:</strong> By using Quantum Network, you agree to follow our platform rules and guidelines. Misuse of the network may result in suspension or termination of your account.
+                    <strong>Terms of Service:</strong> By using Pytro Network, you agree to follow our platform rules and guidelines. Misuse of the network may result in suspension or termination of your account.
                   </ToggleText>
                 )}
 
@@ -367,7 +367,7 @@ const Home = () => {
         </Main>
 
         <Footer>
-          © {new Date().getFullYear()} Quantum Network. All rights reserved.
+          © {new Date().getFullYear()} Pytro Network. All rights reserved.
         </Footer>
       </Container>
     </GlobalWrapper>
