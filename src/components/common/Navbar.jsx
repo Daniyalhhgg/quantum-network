@@ -138,6 +138,43 @@ const ProfileBtn = styled.button`
   &:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(42,166,255,0.2); }
   @media (max-width: ${MOBILE_BREAK}) { display: none; }
 `;
+/* ==================== MOBILE BOTTOM NAV ==================== */
+const MobileBottomNav = styled.div`
+  display: none;
+  @media (max-width: ${MOBILE_BREAK}) {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 6px; right: 6px;
+    height: 48px; background: rgba(8,15,35,0.98);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(42,166,255,0.15);
+    z-index: 1000; padding: 4px 0;
+    box-shadow: 0 -6px 20px rgba(0,0,0,0.4);
+    align-items: center; justify-content: space-around;
+  }
+`;
+
+const FooterNavItem = styled(Link)`
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; color: ${p => p.active ? "#2aff83ff" : "#6ab8a2"}; text-decoration: none;
+  font-size: 0.7rem; font-weight: 400; transition: all 0.22s ease; position: relative; z-index: 2;
+
+  svg { font-size: 1.5rem; transition: transform 0.22s ease; }
+
+  ${p => p.active && `
+    color: #2AA6FF;
+    svg { transform: translateY(-3px) scale(1.2); }
+    &:before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      width: 6px; height: 1px;
+      background: #2affadff;
+      border-radius: 30%;
+      box-shadow: 0 0 14px #2AA6FF;
+    }
+  `}
+`;
 
 const Dropdown = styled.div`
   position: absolute; right: 0; top: ${NAV_HEIGHT + 8}px; min-width: 240px;
@@ -261,6 +298,23 @@ const Navbar = () => {
     )}
   </div>
 </MobileDrawer>
+{/* MOBILE BOTTOM NAV - Only for logged-in users */}
+{user && (
+  <MobileBottomNav>
+    <FooterNavItem to="/dashboard" active={location.pathname.startsWith("/dashboard")}>
+      <FiShield /> Dashboard
+    </FooterNavItem>
+    <FooterNavItem to="/profile" active={location.pathname.startsWith("/profile")}>
+      <FiUser /> Profile
+    </FooterNavItem>
+    <FooterNavItem to="/wallet" active={location.pathname === "/wallet"}>
+      <FiCreditCard /> Wallet
+    </FooterNavItem>
+    <FooterNavItem to="/kyc" active={location.pathname.startsWith("/kyc")}>
+      <FiCheckCircle /> KYC
+    </FooterNavItem>
+  </MobileBottomNav>
+)}
 
     </>
   );
