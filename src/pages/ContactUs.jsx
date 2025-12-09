@@ -110,7 +110,7 @@ const ContactForm = () => {
           <QuantumLogo size={90} />
           <Title>
             <motion.h1 initial={{ y:-20, opacity:0 }} animate={{ y:0, opacity:1 }} transition={{ duration:0.8 }}>
-              Contact Quantum Network
+              Contact Pytro Network
             </motion.h1>
             <motion.p initial={{ y:10, opacity:0 }} animate={{ y:0, opacity:1 }} transition={{ delay:0.3 }}>
               Fill out the form below and our team will respond promptly. <strong>Your message is important to us.</strong>

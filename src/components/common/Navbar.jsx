@@ -74,7 +74,7 @@ const QuantumLogo = ({ size = 46, showText = true, floating = false }) => (
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text',
       }}>
-        Quantum
+        Pytro Network
       </span>
     )}
   </div>
@@ -405,7 +405,7 @@ const Navbar = () => {
         </div>
         <div style={{ marginTop: "auto", fontSize: 13, color: "rgba(191,255,230,0.6)" }}>
           <Divider />
-          <div style={{ padding: "8px 4px" }}>© {new Date().getFullYear()} Quantum — Secure · Fast · Simple</div>
+          <div style={{ padding: "8px 4px" }}>© {new Date().getFullYear()} Pytro — Secure · Fast · Simple</div>
         </div>
       </MobileDrawer>
 

@@ -429,9 +429,9 @@ export default function Wallet() {
         {/* Header */}
         <Header>
           <Brand>
-            <BrandLogo>QW</BrandLogo>
+            <BrandLogo>PW</BrandLogo>
             <div>
-              <Title>Quantum Wallet</Title>
+              <Title>Pytro Wallet</Title>
               <Small>Non-custodial · Secure · Web3-Ready</Small>
             </div>
           </Brand>
@@ -460,8 +460,7 @@ export default function Wallet() {
               <>
                 <div style={{ marginBottom: 20 }}>
                   <Small>Available Balance</Small>
-                  <Amount>{fmt(state.balance)} QNT</Amount>
-
+                  <Amount>{fmt(state.balance)} PNT</Amount>
                   <div
                     style={{
                       marginTop: 10,
@@ -646,7 +645,7 @@ export default function Wallet() {
                   alignItems: "center",
                 }}
               >
-                <h3>Send QNT</h3>
+                <h3>Send PNT</h3>
                 <FiX
                   size={22}
                   style={{ cursor: "pointer" }}
@@ -721,7 +720,7 @@ export default function Wallet() {
                   alignItems: "center",
                 }}
               >
-                <h3>Receive QNT</h3>
+                <h3>Receive PNT</h3>
                 <FiX
                   size={22}
                   style={{ cursor: "pointer" }}

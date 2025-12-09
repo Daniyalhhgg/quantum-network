@@ -345,9 +345,9 @@ export default function Marketplace() {
     <Page>
       {/* DATA MARKETPLACE */}
       <div style={{ textAlign: "center" }}>
-        <HeroTitle>Quantum Data Marketplace</HeroTitle>
+        <HeroTitle>Pytro Marketplace</HeroTitle>
         <HeroSubtitle>
-          Monetize your anonymized data & earn QNT tokens passively
+          Monetize your anonymized data & earn PNT tokens passively
         </HeroSubtitle>
         <OptInButton onClick={() => setShowConsent(true)} whileTap={{ scale: 0.95 }}>
           {opted ? "Manage Consent" : "Opt-in & Start Earning"}

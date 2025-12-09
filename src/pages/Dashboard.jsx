@@ -307,7 +307,7 @@ export default function Dashboard() {
       setBalance(data.balance);
       setIsMining(false);
       setTimeLeft(null);
-      setToast(`+1 QNT claimed to Pending!`);
+      setToast(`+1 PNT claimed to Pending!`);
     } catch (e) {
       setToast(e?.response?.data?.message || "Claim failed");
     } finally {
@@ -323,7 +323,7 @@ export default function Dashboard() {
       const { data } = await api.post("/mining/move-to-wallet");
       setBalance(data.balance);
       setPending(0);
-      setToast(`Moved ${formatQNT(pending)} QNT to wallet!`);
+      setToast(`Moved ${formatQNT(pending)} PNT to wallet!`);
     } catch (e) {
       setToast(e?.response?.data?.message || "Move failed");
     } finally {
@@ -355,9 +355,9 @@ export default function Dashboard() {
   return (
     <Page>
       <Header initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }}>
-        <Title>Quantum Dashboard</Title>
+        <Title>Pytro Network</Title>
         <Balance>
-          {isLoading ? <Skeleton w="120px" h="22px" /> : `${formatQNT(balance)} QNT`}
+          {isLoading ? <Skeleton w="120px" h="22px" /> : `${formatQNT(balance)} PNT`}
         </Balance>
       </Header>
 
@@ -366,7 +366,7 @@ export default function Dashboard() {
         <Card initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <CardTitle>Mining Status</CardTitle>
           <CardValue>{isLoading ? <Skeleton w="80px" /> : isMining ? "Active" : "Stopped"}</CardValue>
-          <SecondaryText>Earn 1 QNT every 24 hours</SecondaryText>
+          <SecondaryText>Earn 1 PNT every 24 hours</SecondaryText>
 
           {!isMining ? (
             <NeonButton onClick={startMining} disabled={actionLoading || isLoading} whileTap={{ scale: 0.95 }}>
@@ -434,10 +434,10 @@ export default function Dashboard() {
         {/* Referrals List */}
         <Card initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <CardTitle>Your Referrals ({referrals.length})</CardTitle>
-          <CardValue>+{formatQNT(totalReferralEarned)} QNT Earned</CardValue>
+          <CardValue>+{formatQNT(totalReferralEarned)} PNT Earned</CardValue>
           <SecondaryText>
             {referrals.length === 0 ? (
-              "Invite friends & earn 1 QNT per referral!"
+              "Invite friends & earn 2 PNT per referral!"
             ) : (
               <div style={{ maxHeight: "200px", overflowY: "auto", marginTop: "8px" }}>
                 {referrals
