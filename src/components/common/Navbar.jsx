@@ -57,19 +57,22 @@ const PytroLogo = ({ size = 56, showText = true }) => (
 
     {showText && (
       <div style={{ lineHeight: 1 }}>
-        <span style={{
-          fontSize: '1.95rem',
-          fontWeight: 900,
-          letterSpacing: '-0.06em',
-          background: 'linear-gradient(90deg, #4FC3FF, #00f5a0)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-        }}>Pytro</span>
+    <span style={{
+  fontSize: '1.95rem',
+  fontWeight: 900,
+  letterSpacing: '-0.06em',
+  background: 'linear-gradient(90deg,  #00f5a0)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
+  textDecoration: 'none',  // remove underline
+  display: 'inline-block',  // ensures underline does not appear
+}}>Pytro</span>
+
         <div style={{
           fontSize: '0.78rem',
           fontWeight: 600,
-          color: '#2AA6FF',
+          
           letterSpacing: '0.18em',
           marginTop: '-2px',
         }}></div>
