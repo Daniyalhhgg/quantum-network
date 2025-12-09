@@ -61,7 +61,7 @@ const PytroLogo = ({ size = 56, showText = true }) => (
           fontSize: '1.95rem',
           fontWeight: 900,
           letterSpacing: '-0.06em',
-          background: 'linear-gradient(90deg, #4FC3FF, #0072FF)',
+          background: 'linear-gradient(90deg, #4FC3FF, #00f5a0)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
@@ -72,7 +72,7 @@ const PytroLogo = ({ size = 56, showText = true }) => (
           color: '#2AA6FF',
           letterSpacing: '0.18em',
           marginTop: '-2px',
-        }}>NETWORK</div>
+        }}></div>
       </div>
     )}
   </div>
@@ -226,15 +226,39 @@ const Navbar = () => {
       </Nav>
 
       <Overlay show={drawerOpen} onClick={() => setDrawerOpen(false)} />
-      <MobileDrawer open={drawerOpen}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
-          <Link to="/"><PytroLogo size={52} /></Link>
-          <button onClick={() => setDrawerOpen(false)} style={{ background:"none", border:"none", color:"#bfffe6", fontSize:28, cursor:"pointer" }}>
-            <FiX />
-          </button>
-        </div>
-        {/* Drawer content same as before — tum chaaho to add kar sakte ho */}
-      </MobileDrawer>
+<MobileDrawer open={drawerOpen}>
+  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+    <Link to="/"><PytroLogo size={52} /></Link>
+    <button onClick={() => setDrawerOpen(false)} style={{ background:"none", border:"none", color:"#bfffe6", fontSize:28, cursor:"pointer" }}>
+      <FiX />
+    </button>
+  </div>
+
+  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+    {!user && (
+      <>
+        <NavLink to="/" onClick={() => setDrawerOpen(false)} className={location.pathname === "/" ? "active" : ""}>Home</NavLink>
+        <NavLink to="/login" onClick={() => setDrawerOpen(false)}>Login</NavLink>
+        <NavLink to="/register" onClick={() => setDrawerOpen(false)}>Register</NavLink>
+      </>
+    )}
+    {user && (
+      <>
+        <NavLink to="/dashboard" onClick={() => setDrawerOpen(false)} className={location.pathname.startsWith("/dashboard") ? "active" : ""}>Dashboard</NavLink>
+        <NavLink to="/wallet" onClick={() => setDrawerOpen(false)} className={location.pathname === "/wallet" ? "active" : ""}>Wallet</NavLink>
+        <NavLink to="/marketplace" onClick={() => setDrawerOpen(false)} className={location.pathname === "/marketplace" ? "active" : ""}>Marketplace</NavLink>
+
+        <Divider />
+        <DropdownItem to="/profile" onClick={() => setDrawerOpen(false)}><FiUser /> Profile</DropdownItem>
+        <DropdownItem to="/kyc" onClick={() => setDrawerOpen(false)}><FiCheckCircle /> KYC</DropdownItem>
+        <DropdownItem to="/trustcircle" onClick={() => setDrawerOpen(false)}><FiUsers /> Trust Circle</DropdownItem>
+        <DropdownItem to="/contactus" onClick={() => setDrawerOpen(false)}><FiMail /> Contact</DropdownItem>
+        <Logout onClick={() => { logout(); setDrawerOpen(false); }}><FiLogOut /> Logout</Logout>
+      </>
+    )}
+  </div>
+</MobileDrawer>
+
     </>
   );
 };
