@@ -546,7 +546,7 @@ const Login = () => {
         </LoginBox>
 
         <Footer>
-          New to Pytro? <Link to="/register">Create Account Free</Link>
+          New to Quantum? <Link to="/register">Create Account Free</Link>
         </Footer>
       </Container>
 

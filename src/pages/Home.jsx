@@ -334,7 +334,7 @@ const Home = () => {
 
             <RightColumn>
               <LoginCard>
-                <CardLogo>Q</CardLogo>
+                <CardLogo>P</CardLogo>
                 <h2>Get Started</h2>
                 <p>Continue Mining</p>
                 <KYCPortButton to="/login">
