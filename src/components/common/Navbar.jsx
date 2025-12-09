@@ -104,7 +104,7 @@ const QuantumLogo = ({ size = 46, showText = true, floating = false }) => (
           backgroundClip: "text",
         }}
       >
-        Quantum
+        Pytro
       </span>
     )}
   </div>
