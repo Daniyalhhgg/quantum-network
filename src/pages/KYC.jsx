@@ -1,5 +1,5 @@
 // =====================
-// KYC.jsx — Final Premium Version + Security Notice
+// KYC.jsx — FINAL PREMIUM VERSION + REJECTION REASON DIKHEGA
 // =====================
 
 import React, { useState, useEffect, useContext } from "react";
@@ -47,21 +47,37 @@ const StatusBox = styled.div`
   background: ${props =>
     props.status === "approved" ? "rgba(34, 197, 94, 0.15)" :
     props.status === "pending" ? "rgba(251, 191, 36, 0.15)" :
-    "rgba(239, 68, 68, 0.15)"};
+    props.status === "rejected" ? "rgba(239, 68, 68, 0.15)" :
+    "rgba(100, 116, 139, 0.15)"};
   border: 1px solid ${props =>
     props.status === "approved" ? "#22c55e" :
     props.status === "pending" ? "#f59e0b" :
-    "#ef4444"};
+    props.status === "rejected" ? "#ef4444" :
+    "#64748b"};
   color: ${props =>
     props.status === "approved" ? "#22c55e" :
     props.status === "pending" ? "#f59e0b" :
-    "#ef4444"};
+    props.status === "rejected" ? "#ef4444" :
+    "#cbd5e1"};
   padding: 1rem 2rem;
   border-radius: 12px;
   text-align: center;
   font-weight: 600;
   font-size: 1.1rem;
   margin-bottom: 2rem;
+`;
+
+const RejectionBox = styled.div`
+  background: rgba(239, 68, 68, 0.2);
+  border: 2px solid #ef4444;
+  color: #fca5a5;
+  padding: 1.5rem;
+  border-radius: 16px;
+  text-align: center;
+  margin: 1.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.7;
 `;
 
 const Form = styled.form`
@@ -83,11 +99,7 @@ const Input = styled.input`
   border-radius: 10px;
   color: #e2e8f0;
   font-size: 1rem;
-
-  &:focus {
-    border-color: #3b82f6;
-    outline: none;
-  }
+  &:focus { border-color: #3b82f6; outline: none; }
 `;
 
 const Select = styled.select`
@@ -106,13 +118,7 @@ const FileBox = styled.div`
   background: #0f172a;
   cursor: pointer;
   position: relative;
-
-  input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
+  input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 `;
 
 const PreviewImg = styled.img`
@@ -137,11 +143,7 @@ const CheckboxContainer = styled.div`
   align-items: flex-start;
   gap: 0.7rem;
   margin-top: 0.8rem;
-
-  input {
-    transform: scale(1.3);
-    margin-top: 3px;
-  }
+  input { transform: scale(1.3); margin-top: 3px; }
 `;
 
 const SubmitBtn = styled.button`
@@ -167,9 +169,7 @@ const SuccessMsg = styled.div`
 `;
 
 // -------------------- API CONFIG --------------------
-const API_BASE =
-  (process.env.REACT_APP_API_URL || "http://localhost:5000/api")
-    .replace(/\/$/, "");
+const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace(/\/$/, "");
 
 const getToken = () => {
   const raw = localStorage.getItem("userInfo");
@@ -186,6 +186,7 @@ const KYC = () => {
   const { login } = useContext(AuthContext);
 
   const [status, setStatus] = useState("not_submitted");
+  const [rejectionReason, setRejectionReason] = useState(""); // YE NAYA HAI
 
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState("");
@@ -201,7 +202,7 @@ const KYC = () => {
   const [loading, setLoading] = useState(false);
   const [agree, setAgree] = useState(false);
 
-  // -------------------- Fetch KYC Status --------------------
+  // -------------------- Fetch KYC Status + Reason --------------------
   const fetchKyc = async () => {
     const token = getToken();
     if (!token) return;
@@ -211,18 +212,26 @@ const KYC = () => {
         headers: { Authorization: `Bearer ${token}` },
         params: { t: Date.now() }
       });
+
       setStatus(res.data.kycStatus || "not_submitted");
 
+      // YE LINE ADD KI — REASON BHI AAYEGA
+      if (res.data.kycRejectionReason) {
+        setRejectionReason(res.data.kycRejectionReason);
+      } else {
+        setRejectionReason("");
+      }
+
+      // Agar approved ho gaya to user info refresh
       if (res.data.kycStatus === "approved") {
         const me = await axios.get(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-
         login(me.data.user);
         localStorage.setItem("userInfo", JSON.stringify(me.data.user));
       }
     } catch (err) {
-      console.log(err);
+      console.log("KYC status fetch error:", err);
     }
   };
 
@@ -232,31 +241,31 @@ const KYC = () => {
 
   useEffect(() => {
     if (status === "pending") {
-      const interval = setInterval(fetchKyc, 7000);
+      const interval = setInterval(fetchKyc, 8000);
       return () => clearInterval(interval);
     }
   }, [status]);
 
   // -------------------- File Preview --------------------
   const handleFile = (e, setter, previewSetter) => {
-    const f = e.target.files[0];
-    if (f) {
-      setter(f);
-      previewSetter(URL.createObjectURL(f));
+    const file = e.target.files[0];
+    if (file) {
+      setter(file);
+      previewSetter(URL.createObjectURL(file));
     }
   };
 
   // -------------------- Submit KYC --------------------
   const submitKYC = async (e) => {
     e.preventDefault();
-
-    if (!agree) return alert("You must accept the security terms to continue.");
+    if (!agree) return alert("You must accept the terms!");
 
     const token = getToken();
-    if (!token) return alert("Login again!");
+    if (!token) return alert("Please login again");
 
-    if (!fullName || !dob || !gender || !nid || !frontDoc || !backDoc)
-      return alert("All fields required");
+    if (!fullName || !dob || !gender || !nid || !frontDoc || !backDoc) {
+      return alert("All fields are required");
+    }
 
     const formData = new FormData();
     formData.append("fullName", fullName);
@@ -268,50 +277,75 @@ const KYC = () => {
 
     try {
       setLoading(true);
-
       await axios.post(`${API_BASE}/kyc/submit`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       setStatus("pending");
-      alert("KYC submitted!");
+      alert("KYC submitted successfully!");
     } catch (err) {
-      console.log(err.response?.data);
       alert(err.response?.data?.message || "Submission failed");
     } finally {
       setLoading(false);
     }
   };
 
-  // -------------------- UI --------------------
+  // -------------------- RENDER --------------------
   return (
     <Container>
       <Card>
         <Title>KYC Verification</Title>
-        <Subtitle>Complete verification to unlock all features</Subtitle>
+        <Subtitle>Verify your identity to unlock withdrawals & full access</Subtitle>
 
         <StatusBox status={status}>
           {status === "not_submitted" && "Not Submitted"}
           {status === "pending" && "Pending Review"}
-          {status === "approved" && "Verified"}
+          {status === "approved" && "Verified Successfully"}
           {status === "rejected" && "Rejected"}
         </StatusBox>
 
+        {/* REJECTED HONE PE REASON DIKHEGA */}
+        {status === "rejected" && (
+          <RejectionBox>
+            <div style={{ color: "#ef4444", fontSize: "1.4rem", marginBottom: "0.8rem" }}>
+              KYC Rejected
+            </div>
+            <div style={{ color: "#fecaca", lineHeight: "1.6" }}>
+              <strong>Reason from Admin:</strong><br />
+              {rejectionReason || "No reason provided"}
+            </div>
+            <div style={{ marginTop: "1rem", fontSize: "0.95rem", color: "#fda4af" }}>
+              Please fix the issue and resubmit your KYC.
+            </div>
+          </RejectionBox>
+        )}
+
+        {/* PENDING */}
+        {status === "pending" && (
+          <SuccessMsg>
+            Your KYC is under review...<br />
+            <small>Please wait 24-48 hours</small>
+          </SuccessMsg>
+        )}
+
+        {/* APPROVED */}
+        {status === "approved" && (
+          <SuccessMsg>
+            KYC Verified Successfully
+          </SuccessMsg>
+        )}
+
+        {/* FORM — Sirf not_submitted hone pe dikhega */}
         {status === "not_submitted" && (
           <Form onSubmit={submitKYC}>
             <div>
-              <Label>Full Name</Label>
+              <Label>Full Name (as per ID)</Label>
               <Input value={fullName} onChange={e => setFullName(e.target.value)} required />
             </div>
 
             <div>
               <Label>Date of Birth</Label>
-              <Input
-                type="date"
-                value={dob}
-                onChange={e => setDob(e.target.value)}
-                required
-              />
+              <Input type="date" value={dob} onChange={e => setDob(e.target.value)} required />
             </div>
 
             <div>
@@ -330,62 +364,41 @@ const KYC = () => {
             </div>
 
             <div>
-              <Label>Front Side Document</Label>
+              <Label>Front Side of ID</Label>
               <FileBox>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={e => handleFile(e, setFrontDoc, setFrontPreview)}
-                />
-                <p>{frontDoc ? frontDoc.name : "Upload front side"}</p>
+                <input type="file" accept="image/*" onChange={e => handleFile(e, setFrontDoc, setFrontPreview)} />
+                <p>{frontDoc ? frontDoc.name : "Click to upload front side"}</p>
                 {frontPreview && <PreviewImg src={frontPreview} />}
               </FileBox>
             </div>
 
             <div>
-              <Label>Back Side Document</Label>
+              <Label>Back Side of ID</Label>
               <FileBox>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={e => handleFile(e, setBackDoc, setBackPreview)}
-                />
-                <p>{backDoc ? backDoc.name : "Upload back side"}</p>
+                <input type="file" accept="image/*" onChange={e => handleFile(e, setBackDoc, setBackPreview)} />
+                <p>{backDoc ? backDoc.name : "Click to upload back side"}</p>
                 {backPreview && <PreviewImg src={backPreview} />}
               </FileBox>
             </div>
 
-            {/* -------------------- SECURITY NOTICE -------------------- */}
             <SecurityNotice>
               <strong>Security Notice:</strong><br />
-              • Your device information, IP address, and location will be recorded.<br />
-              • Duplicate or fake KYC submissions will result in permanent account suspension.<br />
-              • Using the same ID for multiple accounts will block all associated accounts.
+              • Your device, IP, and location are recorded.<br />
+              • Fake or duplicate KYC = Permanent Ban.<br />
+              • Same ID on multiple accounts = All accounts blocked.
             </SecurityNotice>
 
             <CheckboxContainer>
-              <input
-                type="checkbox"
-                checked={agree}
-                onChange={() => setAgree(!agree)}
-              />
+              <input type="checkbox" checked={agree} onChange={() => setAgree(!agree)} />
               <span style={{ color: "#cbd5e1" }}>
-                I understand and agree to the KYC Security Terms.
+                I accept the KYC Security Terms
               </span>
             </CheckboxContainer>
 
             <SubmitBtn disabled={loading || !agree}>
-              {loading ? "Submitting..." : "Submit for Verification"}
+              {loading ? "Submitting..." : "Submit KYC"}
             </SubmitBtn>
           </Form>
-        )}
-
-        {status === "pending" && (
-          <SuccessMsg>Your KYC is under review...</SuccessMsg>
-        )}
-
-        {status === "approved" && (
-          <SuccessMsg>KYC Verified Successfully 🎉</SuccessMsg>
         )}
       </Card>
     </Container>
