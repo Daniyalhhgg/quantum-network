@@ -10,7 +10,7 @@ import {
   FiUser, FiSettings, FiLogOut, FiMenu, FiX, FiCheckCircle,FiMail,
 } from "react-icons/fi";
 
-/* -------------------- ANIMATIONS -------------------- */
+/* -------------------- ANIMATIONS ------------------- */
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
