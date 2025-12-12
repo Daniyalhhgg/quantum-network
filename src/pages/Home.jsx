@@ -1,3 +1,4 @@
+// src/pages/Home.jsx — FINAL UPDATED (Explorer Card Direct Open Karega)
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
@@ -13,14 +14,13 @@ const float = keyframes`
   50% { transform: translateY(-6px); }
 `;
 
-// Global fix – prevent any horizontal overflow
+// Global Wrapper
 const GlobalWrapper = styled.div`
   width: 100%;
-  overflow-x: hidden; /* Critical: removes horizontal scroll */
+  overflow-x: hidden;
   box-sizing: border-box;
 `;
 
-// Styled Components
 const Container = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #0a0e21, #0f162d);
@@ -28,8 +28,6 @@ const Container = styled.div`
   font-family: 'Inter', system-ui, sans-serif;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  box-sizing: border-box;
 `;
 
 const Header = styled.header`
@@ -46,8 +44,6 @@ const Logo = styled.div`
   background: linear-gradient(90deg, #00f5a0, #00d9f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
 `;
 
 const Main = styled.main`
@@ -64,7 +60,6 @@ const HeroGrid = styled.div`
   grid-template-columns: 1fr minmax(280px, 340px);
   gap: 2rem;
   align-items: start;
-  width: 100%;
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
@@ -75,7 +70,6 @@ const HeroGrid = styled.div`
 
 const Left = styled.div`
   animation: ${fadeInUp} 0.9s ease-out;
-  width: 100%;
 `;
 
 const Title = styled.h1`
@@ -86,7 +80,6 @@ const Title = styled.h1`
   background: linear-gradient(90deg, #00f5a0, #00d9f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
 
   @media (max-width: 640px) {
     font-size: 2.4rem;
@@ -119,11 +112,10 @@ const Button = styled(Link)`
   font-weight: 700;
   font-size: 1rem;
   text-decoration: none;
-  transition: all 0.3s;
   background: linear-gradient(90deg, #00f5a0, #00d9f5);
   color: #0b132b;
   border: 2px solid #00f5a0;
-  white-space: nowrap;
+  transition: all 0.3s;
 
   &:hover {
     transform: translateY(-3px);
@@ -135,10 +127,8 @@ const RightColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  width: 100%;
   max-width: 340px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
 
   @media (max-width: 900px) {
     order: -1;
@@ -153,20 +143,6 @@ const LoginCard = styled.div`
   text-align: center;
   border: 1px solid rgba(0, 245, 160, 0.3);
   animation: ${float} 6s ease-in-out infinite;
-  width: 100%;
-  box-sizing: border-box;
-
-  h2 {
-    font-size: 1.4rem;
-    color: #00f5a0;
-    margin: 0 0 0.5rem;
-  }
-
-  p {
-    color: #aaa;
-    font-size: 0.9rem;
-    margin-bottom: 0.8rem;
-  }
 `;
 
 const CardLogo = styled.div`
@@ -203,7 +179,6 @@ const QuickCards = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
   margin-top: 2rem;
-  width: 100%;
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
@@ -246,8 +221,6 @@ const TokenInfo = styled.div`
   margin-top: 2rem;
   font-size: 0.9rem;
   color: #fff;
-  width: 100%;
-  box-sizing: border-box;
 
   h4 {
     margin: 0 0 0.5rem;
@@ -279,8 +252,6 @@ const Footer = styled.footer`
   padding: 1.5rem 5%;
   color: #555;
   font-size: 0.85rem;
-  width: 100%;
-  box-sizing: border-box;
 `;
 
 // Main Component
@@ -312,13 +283,16 @@ const Home = () => {
                   <h3>Launchpad</h3>
                   <p>Fair project launches</p>
                 </QuickCard>
+
                 <QuickCard to="/wallet">
                   <h3>Wallet</h3>
                   <p>Check your token balance & supply</p>
                 </QuickCard>
-                <QuickCard to="/explorer">
-                  <h3>Explorer</h3>
-                  <p>View blockchain data</p>
+
+                {/* YE CARD CLICK KARNE PE DIRECT EXPLORER OPEN HOGA */}
+                <QuickCard to="/transaction">
+                  <h3>🔍 Blockchain Explorer</h3>
+                  <p>View all transactions live (Public)</p>
                 </QuickCard>
               </QuickCards>
 
