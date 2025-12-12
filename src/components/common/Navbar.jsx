@@ -352,6 +352,7 @@ const Navbar = () => {
                 <NavLink to="/wallet" className={location.pathname === "/wallet" ? "active" : ""}><FiCreditCard /> Wallet</NavLink>
                 <NavLink to="/marketplace" className={location.pathname === "/marketplace" ? "active" : ""}><FiShoppingBag /> Marketplace</NavLink>
                    <NavLink to="/FaceDetection" className={location.pathname === "/FaceDetection" ? "active" : ""}> Face Detection</NavLink>
+                    <NavLink to="/Transaction" className={location.pathname === "/Transaction" ? "active" : ""}> Transaction</NavLink>
               </>
             ) : (
               <>
@@ -469,6 +470,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-
 
