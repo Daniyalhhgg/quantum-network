@@ -1,8 +1,8 @@
 // =====================
-// KYC.jsx — FINAL PREMIUM VERSION + REJECTION REASON DIKHEGA
+// KYC.jsx — FULLY UPDATED + CAMERA SUPPORT (Laptop + Mobile)
 // =====================
 
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import { AuthContext } from "../context/AuthContext";
@@ -168,17 +168,35 @@ const SuccessMsg = styled.div`
   font-size: 1.2rem;
 `;
 
+const CameraWrapper = styled.div`
+  text-align: center;
+  margin-top: 1rem;
+`;
+
+const Video = styled.video`
+  width: 100%;
+  max-width: 300px;
+  border-radius: 12px;
+  margin-top: 0.5rem;
+`;
+
+const CaptureBtn = styled.button`
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+`;
+
 // -------------------- API CONFIG --------------------
 const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace(/\/$/, "");
-
 const getToken = () => {
   const raw = localStorage.getItem("userInfo");
   if (!raw) return null;
-  try {
-    return JSON.parse(raw).token;
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(raw).token; } catch { return null; }
 };
 
 // -------------------- MAIN COMPONENT --------------------
@@ -186,43 +204,41 @@ const KYC = () => {
   const { login } = useContext(AuthContext);
 
   const [status, setStatus] = useState("not_submitted");
-  const [rejectionReason, setRejectionReason] = useState(""); // YE NAYA HAI
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState("");
   const [gender, setGender] = useState("");
   const [nid, setNid] = useState("");
 
+  // File states
   const [frontDoc, setFrontDoc] = useState(null);
   const [backDoc, setBackDoc] = useState(null);
+  const [selfie, setSelfie] = useState(null);
 
   const [frontPreview, setFrontPreview] = useState("");
   const [backPreview, setBackPreview] = useState("");
+  const [selfiePreview, setSelfiePreview] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [agree, setAgree] = useState(false);
 
-  // -------------------- Fetch KYC Status + Reason --------------------
+  // Camera ref
+  const videoRef = useRef(null);
+  const [cameraStarted, setCameraStarted] = useState(false);
+
+  // -------------------- Fetch KYC Status --------------------
   const fetchKyc = async () => {
     const token = getToken();
     if (!token) return;
-
     try {
       const res = await axios.get(`${API_BASE}/kyc/status`, {
         headers: { Authorization: `Bearer ${token}` },
         params: { t: Date.now() }
       });
-
       setStatus(res.data.kycStatus || "not_submitted");
+      setRejectionReason(res.data.kycRejectionReason || "");
 
-      // YE LINE ADD KI — REASON BHI AAYEGA
-      if (res.data.kycRejectionReason) {
-        setRejectionReason(res.data.kycRejectionReason);
-      } else {
-        setRejectionReason("");
-      }
-
-      // Agar approved ho gaya to user info refresh
       if (res.data.kycStatus === "approved") {
         const me = await axios.get(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -230,15 +246,10 @@ const KYC = () => {
         login(me.data.user);
         localStorage.setItem("userInfo", JSON.stringify(me.data.user));
       }
-    } catch (err) {
-      console.log("KYC status fetch error:", err);
-    }
+    } catch (err) { console.log("KYC status fetch error:", err); }
   };
 
-  useEffect(() => {
-    fetchKyc();
-  }, []);
-
+  useEffect(() => { fetchKyc(); }, []);
   useEffect(() => {
     if (status === "pending") {
       const interval = setInterval(fetchKyc, 8000);
@@ -246,25 +257,51 @@ const KYC = () => {
     }
   }, [status]);
 
-  // -------------------- File Preview --------------------
+  // -------------------- Camera Functions --------------------
+  const startCamera = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      return alert("Camera not supported");
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      videoRef.current.srcObject = stream;
+      await videoRef.current.play();
+      setCameraStarted(true);
+    } catch (err) {
+      alert("Camera access denied: " + err.message);
+    }
+  };
+
+  const captureSelfie = () => {
+    if (!videoRef.current) return alert("Start camera first!");
+    const video = videoRef.current;
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(blob => {
+      if (!blob) return alert("Failed to capture selfie, try again.");
+      const file = new File([blob], "selfie.jpg", { type: "image/jpeg" });
+      setSelfie(file);
+      setSelfiePreview(URL.createObjectURL(file));
+    }, "image/jpeg");
+  };
+
+  // -------------------- File Upload Preview --------------------
   const handleFile = (e, setter, previewSetter) => {
     const file = e.target.files[0];
-    if (file) {
-      setter(file);
-      previewSetter(URL.createObjectURL(file));
-    }
+    if (file) { setter(file); previewSetter(URL.createObjectURL(file)); }
   };
 
   // -------------------- Submit KYC --------------------
   const submitKYC = async (e) => {
     e.preventDefault();
     if (!agree) return alert("You must accept the terms!");
-
     const token = getToken();
     if (!token) return alert("Please login again");
-
-    if (!fullName || !dob || !gender || !nid || !frontDoc || !backDoc) {
-      return alert("All fields are required");
+    if (!fullName || !dob || !gender || !nid || !frontDoc || !backDoc || !selfie) {
+      return alert("All fields are required including selfie!");
     }
 
     const formData = new FormData();
@@ -274,20 +311,18 @@ const KYC = () => {
     formData.append("nid", nid);
     formData.append("frontDoc", frontDoc);
     formData.append("backDoc", backDoc);
+    formData.append("selfie", selfie);
 
     try {
       setLoading(true);
       await axios.post(`${API_BASE}/kyc/submit`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
       setStatus("pending");
       alert("KYC submitted successfully!");
     } catch (err) {
       alert(err.response?.data?.message || "Submission failed");
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   // -------------------- RENDER --------------------
@@ -304,15 +339,11 @@ const KYC = () => {
           {status === "rejected" && "Rejected"}
         </StatusBox>
 
-        {/* REJECTED HONE PE REASON DIKHEGA */}
         {status === "rejected" && (
           <RejectionBox>
-            <div style={{ color: "#ef4444", fontSize: "1.4rem", marginBottom: "0.8rem" }}>
-              KYC Rejected
-            </div>
+            <div style={{ color: "#ef4444", fontSize: "1.4rem", marginBottom: "0.8rem" }}>KYC Rejected</div>
             <div style={{ color: "#fecaca", lineHeight: "1.6" }}>
-              <strong>Reason from Admin:</strong><br />
-              {rejectionReason || "No reason provided"}
+              <strong>Reason from Admin:</strong><br />{rejectionReason || "No reason provided"}
             </div>
             <div style={{ marginTop: "1rem", fontSize: "0.95rem", color: "#fda4af" }}>
               Please fix the issue and resubmit your KYC.
@@ -320,66 +351,55 @@ const KYC = () => {
           </RejectionBox>
         )}
 
-        {/* PENDING */}
-        {status === "pending" && (
-          <SuccessMsg>
-            Your KYC is under review...<br />
-            <small>Please wait 24-48 hours</small>
-          </SuccessMsg>
-        )}
+        {status === "pending" && <SuccessMsg>Your KYC is under review...<br /><small>Please wait 24-48 hours</small></SuccessMsg>}
+        {status === "approved" && <SuccessMsg>KYC Verified Successfully</SuccessMsg>}
 
-        {/* APPROVED */}
-        {status === "approved" && (
-          <SuccessMsg>
-            KYC Verified Successfully
-          </SuccessMsg>
-        )}
-
-        {/* FORM — Sirf not_submitted hone pe dikhega */}
         {status === "not_submitted" && (
           <Form onSubmit={submitKYC}>
-            <div>
-              <Label>Full Name (as per ID)</Label>
-              <Input value={fullName} onChange={e => setFullName(e.target.value)} required />
-            </div>
+            <Label>Full Name (as per ID)</Label>
+            <Input value={fullName} onChange={e => setFullName(e.target.value)} required />
 
-            <div>
-              <Label>Date of Birth</Label>
-              <Input type="date" value={dob} onChange={e => setDob(e.target.value)} required />
-            </div>
+            <Label>Date of Birth</Label>
+            <Input type="date" value={dob} onChange={e => setDob(e.target.value)} required />
 
-            <div>
-              <Label>Gender</Label>
-              <Select value={gender} onChange={e => setGender(e.target.value)} required>
-                <option value="">Select Gender</option>
-                <option>Male</option>
-                <option>Female</option>
-                <option>Other</option>
-              </Select>
-            </div>
+            <Label>Gender</Label>
+            <Select value={gender} onChange={e => setGender(e.target.value)} required>
+              <option value="">Select Gender</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+            </Select>
 
-            <div>
-              <Label>NID / Passport Number</Label>
-              <Input value={nid} onChange={e => setNid(e.target.value)} required />
-            </div>
+            <Label>NID / Passport Number</Label>
+            <Input value={nid} onChange={e => setNid(e.target.value)} required />
 
-            <div>
-              <Label>Front Side of ID</Label>
-              <FileBox>
-                <input type="file" accept="image/*" onChange={e => handleFile(e, setFrontDoc, setFrontPreview)} />
-                <p>{frontDoc ? frontDoc.name : "Click to upload front side"}</p>
-                {frontPreview && <PreviewImg src={frontPreview} />}
-              </FileBox>
-            </div>
+            <Label>Front Side of ID</Label>
+            <FileBox>
+              <input type="file" accept="image/*" onChange={e => handleFile(e, setFrontDoc, setFrontPreview)} />
+              <p>{frontDoc ? frontDoc.name : "Click to upload front side"}</p>
+              {frontPreview && <PreviewImg src={frontPreview} />}
+            </FileBox>
 
-            <div>
-              <Label>Back Side of ID</Label>
-              <FileBox>
-                <input type="file" accept="image/*" onChange={e => handleFile(e, setBackDoc, setBackPreview)} />
-                <p>{backDoc ? backDoc.name : "Click to upload back side"}</p>
-                {backPreview && <PreviewImg src={backPreview} />}
-              </FileBox>
-            </div>
+            <Label>Back Side of ID</Label>
+            <FileBox>
+              <input type="file" accept="image/*" onChange={e => handleFile(e, setBackDoc, setBackPreview)} />
+              <p>{backDoc ? backDoc.name : "Click to upload back side"}</p>
+              {backPreview && <PreviewImg src={backPreview} />}
+            </FileBox>
+
+            <Label>Live Selfie</Label>
+            <CameraWrapper>
+              <Video ref={videoRef} autoPlay muted />
+              <div>
+                <CaptureBtn type="button" onClick={startCamera}>
+                  {cameraStarted ? "Restart Camera" : "Start Camera"}
+                </CaptureBtn>
+                <CaptureBtn type="button" onClick={captureSelfie}>
+                  {selfiePreview ? "Retake Selfie" : "Capture Selfie"}
+                </CaptureBtn>
+              </div>
+              {selfiePreview && <PreviewImg src={selfiePreview} />}
+            </CameraWrapper>
 
             <SecurityNotice>
               <strong>Security Notice:</strong><br />
@@ -390,14 +410,10 @@ const KYC = () => {
 
             <CheckboxContainer>
               <input type="checkbox" checked={agree} onChange={() => setAgree(!agree)} />
-              <span style={{ color: "#cbd5e1" }}>
-                I accept the KYC Security Terms
-              </span>
+              <span style={{ color: "#cbd5e1" }}>I accept the KYC Security Terms</span>
             </CheckboxContainer>
 
-            <SubmitBtn disabled={loading || !agree}>
-              {loading ? "Submitting..." : "Submit KYC"}
-            </SubmitBtn>
+            <SubmitBtn disabled={loading || !agree}>{loading ? "Submitting..." : "Submit KYC"}</SubmitBtn>
           </Form>
         )}
       </Card>
@@ -406,3 +422,4 @@ const KYC = () => {
 };
 
 export default KYC;
+
