@@ -351,6 +351,7 @@ const Navbar = () => {
                 <NavLink to="/dashboard" className={location.pathname.startsWith("/dashboard") ? "active" : ""}><FiShield /> Dashboard</NavLink>
                 <NavLink to="/wallet" className={location.pathname === "/wallet" ? "active" : ""}><FiCreditCard /> Wallet</NavLink>
                 <NavLink to="/marketplace" className={location.pathname === "/marketplace" ? "active" : ""}><FiShoppingBag /> Marketplace</NavLink>
+                   <NavLink to="/FaceDetection" className={location.pathname === "/FaceDetection" ? "active" : ""}> Face Detection</NavLink>
               </>
             ) : (
               <>
@@ -373,6 +374,7 @@ const Navbar = () => {
                   <DropdownItem to="/kyc"><FiCheckCircle /> KYC Verification</DropdownItem>
                   <DropdownItem to="/trustcircle"><FiUsers /> Trust Circle</DropdownItem>
                   <DropdownItem to="/ContactUs"><FiMail /> Contact Us</DropdownItem>
+                   <DropdownItem to="/FaceDetection"><FiMail /> Face Detection</DropdownItem>
                   <Divider />
                   <Logout onClick={() => { logout?.(); setDropdownOpen(false); }}>
                     <FiLogOut /> Logout
@@ -429,6 +431,7 @@ const Navbar = () => {
               <DrawerLink to="/marketplace" onClick={() => setDrawerOpen(false)}><FiShoppingBag /> Marketplace</DrawerLink>
               <Divider />
               <DrawerLink to="/profile" onClick={() => setDrawerOpen(false)}><FiUser /> My Profile</DrawerLink>
+              <DrawerLink to="/FaceDetection" onClick={() => setDrawerOpen(false)}><FiUser /> Face Detection</DrawerLink>
               <DrawerLink to="/kyc" onClick={() => setDrawerOpen(false)}><FiCheckCircle /> KYC Verification</DrawerLink>
               <DrawerLink to="/trustcircle" onClick={() => setDrawerOpen(false)}><FiUsers /> Trust Circle</DrawerLink>
               <DrawerLink to="/ContactUs" onClick={() => setDrawerOpen(false)}><FiMail /> Contact Us</DrawerLink>
@@ -466,4 +469,6 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+
 
