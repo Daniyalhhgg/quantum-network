@@ -1,4 +1,4 @@
-// src/App.js → FINAL + FORGET PASSWORD + ALL ROUTES
+// src/App.js → FINAL + PUBLIC EXPLORER + ALL ROUTES CLEAN
 import React, { useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
@@ -6,7 +6,7 @@ import { AuthContext } from "./context/AuthContext";
 import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
 
-// Page
+// Pages
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Wallet from "./pages/Wallet";
@@ -18,11 +18,11 @@ import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import ContactUs from "./pages/ContactUs";
-import ForgotPassword from "./pages/ForgotPassword"; // ← ADDED
+import ForgotPassword from "./pages/ForgotPassword";
 import FaceDetection from "./pages/FaceDetection";
-import Transaction from "./pages/Transaction";
-// Phir <FaceDetection /> render karo
-// Protected Route
+import Transaction from "./pages/Transaction"; // ← Blockchain Explorer
+
+// Protected Route Component
 import ProtectedRoute from "./components/common/ProtectedRoute";
 
 const App = () => {
@@ -33,7 +33,7 @@ const App = () => {
       <Navbar />
       <main style={{ minHeight: "80vh", padding: "20px" }}>
         <Routes>
-          {/* PUBLIC ROUTES */}
+          {/* PUBLIC ROUTES — Koi Login Nahi Chahiye */}
           <Route 
             path="/" 
             element={user ? <Navigate to="/dashboard" replace /> : <Home />} 
@@ -49,10 +49,12 @@ const App = () => {
             element={user ? <Navigate to="/dashboard" replace /> : <Register />} 
           />
 
-          {/* FORGET PASSWORD (PUBLIC) */}
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* PROTECTED ROUTES */}
+          {/* PUBLIC BLOCKCHAIN EXPLORER — BINA LOGIN KE OPEN HOGA */}
+          <Route path="/transaction" element={<Transaction />} />
+
+          {/* PROTECTED ROUTES — Login Zaroori Hai */}
           <Route
             path="/dashboard"
             element={
@@ -61,6 +63,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/wallet"
             element={
@@ -69,6 +72,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/trustcircle"
             element={
@@ -77,6 +81,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/marketplace"
             element={
@@ -85,6 +90,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/kyc"
             element={
@@ -93,6 +99,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/profile"
             element={
@@ -101,39 +108,16 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-              <Route
-            path="/FaceDetection"
+
+          <Route
+            path="/facedetection"
             element={
               <ProtectedRoute>
                 <FaceDetection />
               </ProtectedRoute>
             }
           />
-                 
-          <Route
-            path="/wallet"
-            element={
-              <ProtectedRoute>
-                <Wallet />
-              </ProtectedRoute>
-            }
-          />       
-          <Route
-            path="/wallet"
-            element={
-              <ProtectedRoute>
-                <Wallet />
-              </ProtectedRoute>
-            }
-          />       
-          <Route
-            path="/Transaction"
-            element={
-              <ProtectedRoute>
-                <Transaction />
-              </ProtectedRoute>
-            }
-          />
+
           <Route
             path="/contactus"
             element={
@@ -143,7 +127,7 @@ const App = () => {
             }
           />
 
-          {/* ADMIN ROUTE */}
+          {/* ADMIN ROUTE — Sirf Admin Ko Access */}
           <Route
             path="/admin"
             element={
@@ -153,8 +137,8 @@ const App = () => {
             }
           />
 
-          {/* 404 */}
-          <Route path="*" element={<Navigate to="/" />} />
+          {/* 404 — Home Pe Redirect */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
       <Footer />
