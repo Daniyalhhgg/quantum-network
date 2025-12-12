@@ -19,7 +19,8 @@ import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import ContactUs from "./pages/ContactUs";
 import ForgotPassword from "./pages/ForgotPassword"; // ← ADDED
-
+import FaceDetection from "./pages/FaceDetection";
+// Phir <FaceDetection /> render karo
 // Protected Route
 import ProtectedRoute from "./components/common/ProtectedRoute";
 
@@ -96,6 +97,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+              <Route
+            path="/FaceDetection"
+            element={
+              <ProtectedRoute>
+                <FaceDetection />
               </ProtectedRoute>
             }
           />
