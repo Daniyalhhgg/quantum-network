@@ -20,6 +20,7 @@ import Profile from "./pages/Profile";
 import ContactUs from "./pages/ContactUs";
 import ForgotPassword from "./pages/ForgotPassword"; // ← ADDED
 import FaceDetection from "./pages/FaceDetection";
+import Transaction from "./pages/Transaction";
 // Phir <FaceDetection /> render karo
 // Protected Route
 import ProtectedRoute from "./components/common/ProtectedRoute";
@@ -105,6 +106,31 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <FaceDetection />
+              </ProtectedRoute>
+            }
+          />
+                 
+          <Route
+            path="/wallet"
+            element={
+              <ProtectedRoute>
+                <Wallet />
+              </ProtectedRoute>
+            }
+          />       
+          <Route
+            path="/wallet"
+            element={
+              <ProtectedRoute>
+                <Wallet />
+              </ProtectedRoute>
+            }
+          />       
+          <Route
+            path="/Transaction"
+            element={
+              <ProtectedRoute>
+                <Transaction />
               </ProtectedRoute>
             }
           />
