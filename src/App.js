@@ -6,7 +6,7 @@ import { AuthContext } from "./context/AuthContext";
 import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
 
-// Pages
+// Page
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Wallet from "./pages/Wallet";
