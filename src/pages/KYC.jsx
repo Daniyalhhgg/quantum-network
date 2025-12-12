@@ -1,11 +1,13 @@
 // =====================
-// KYC.jsx — FULLY UPDATED + CAMERA SUPPORT (Laptop + Mobile)
+// KYC.jsx — FULLY UPDATED + CAMERA SUPPORT + TOAST ALERTS
 // =====================
 
 import React, { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import { AuthContext } from "../context/AuthContext";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // -------------------- UI COMPONENTS --------------------
 const Container = styled.div`
@@ -211,7 +213,6 @@ const KYC = () => {
   const [gender, setGender] = useState("");
   const [nid, setNid] = useState("");
 
-  // File states
   const [frontDoc, setFrontDoc] = useState(null);
   const [backDoc, setBackDoc] = useState(null);
   const [selfie, setSelfie] = useState(null);
@@ -223,9 +224,10 @@ const KYC = () => {
   const [loading, setLoading] = useState(false);
   const [agree, setAgree] = useState(false);
 
-  // Camera ref
   const videoRef = useRef(null);
   const [cameraStarted, setCameraStarted] = useState(false);
+
+  const MAX_FILE_SIZE_MB = 5; // max 5MB per image
 
   // -------------------- Fetch KYC Status --------------------
   const fetchKyc = async () => {
@@ -238,7 +240,6 @@ const KYC = () => {
       });
       setStatus(res.data.kycStatus || "not_submitted");
       setRejectionReason(res.data.kycRejectionReason || "");
-
       if (res.data.kycStatus === "approved") {
         const me = await axios.get(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -259,29 +260,27 @@ const KYC = () => {
 
   // -------------------- Camera Functions --------------------
   const startCamera = async () => {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      return alert("Camera not supported");
-    }
+    if (!navigator.mediaDevices?.getUserMedia) return toast.error("Camera not supported");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       videoRef.current.srcObject = stream;
       await videoRef.current.play();
       setCameraStarted(true);
     } catch (err) {
-      alert("Camera access denied: " + err.message);
+      toast.error("Camera access denied: " + err.message);
     }
   };
 
   const captureSelfie = () => {
-    if (!videoRef.current) return alert("Start camera first!");
+    if (!videoRef.current) return toast.error("Start camera first!");
     const video = videoRef.current;
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
-
     canvas.toBlob(blob => {
-      if (!blob) return alert("Failed to capture selfie, try again.");
+      if (!blob) return toast.error("Failed to capture selfie, try again.");
+      if (blob.size / (1024*1024) > MAX_FILE_SIZE_MB) return toast.warning("Selfie too large! Max 5MB.");
       const file = new File([blob], "selfie.jpg", { type: "image/jpeg" });
       setSelfie(file);
       setSelfiePreview(URL.createObjectURL(file));
@@ -291,17 +290,22 @@ const KYC = () => {
   // -------------------- File Upload Preview --------------------
   const handleFile = (e, setter, previewSetter) => {
     const file = e.target.files[0];
-    if (file) { setter(file); previewSetter(URL.createObjectURL(file)); }
+    if (!file) return;
+    if (file.size / (1024*1024) > MAX_FILE_SIZE_MB) {
+      return toast.warning(`File too large! Max ${MAX_FILE_SIZE_MB}MB allowed.`);
+    }
+    setter(file);
+    previewSetter(URL.createObjectURL(file));
   };
 
   // -------------------- Submit KYC --------------------
   const submitKYC = async (e) => {
     e.preventDefault();
-    if (!agree) return alert("You must accept the terms!");
+    if (!agree) return toast.warning("You must accept the terms!");
     const token = getToken();
-    if (!token) return alert("Please login again");
+    if (!token) return toast.error("Please login again");
     if (!fullName || !dob || !gender || !nid || !frontDoc || !backDoc || !selfie) {
-      return alert("All fields are required including selfie!");
+      return toast.warning("All fields are required including selfie!");
     }
 
     const formData = new FormData();
@@ -319,15 +323,16 @@ const KYC = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       setStatus("pending");
-      alert("KYC submitted successfully!");
+      toast.success("KYC submitted successfully! Please wait for review.");
     } catch (err) {
-      alert(err.response?.data?.message || "Submission failed");
+      toast.error(err.response?.data?.message || "Submission failed");
     } finally { setLoading(false); }
   };
 
   // -------------------- RENDER --------------------
   return (
     <Container>
+      <ToastContainer position="top-right" autoClose={4000} />
       <Card>
         <Title>KYC Verification</Title>
         <Subtitle>Verify your identity to unlock withdrawals & full access</Subtitle>
@@ -422,4 +427,3 @@ const KYC = () => {
 };
 
 export default KYC;
-
