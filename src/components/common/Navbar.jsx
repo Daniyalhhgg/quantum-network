@@ -10,7 +10,7 @@ import {
   FiUser, FiSettings, FiLogOut, FiMenu, FiX, FiCheckCircle,FiMail,
 } from "react-icons/fi";
 
-/* -------------------- ANIMATIONS ------------------- */
+/* -------------------- ANIMATIONS -------------------- */
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -352,7 +352,7 @@ const Navbar = () => {
                 <NavLink to="/wallet" className={location.pathname === "/wallet" ? "active" : ""}><FiCreditCard /> Wallet</NavLink>
                 <NavLink to="/marketplace" className={location.pathname === "/marketplace" ? "active" : ""}><FiShoppingBag /> Marketplace</NavLink>
                    <NavLink to="/FaceDetection" className={location.pathname === "/FaceDetection" ? "active" : ""}> Face Detection</NavLink>
-                    <NavLink to="/Transaction" className={location.pathname === "/Transaction" ? "active" : ""}> Transaction</NavLink>
+                   
               </>
             ) : (
               <>
@@ -376,6 +376,7 @@ const Navbar = () => {
                   <DropdownItem to="/trustcircle"><FiUsers /> Trust Circle</DropdownItem>
                   <DropdownItem to="/ContactUs"><FiMail /> Contact Us</DropdownItem>
                    <DropdownItem to="/FaceDetection"><FiMail /> Face Detection</DropdownItem>
+                    <DropdownItem to="/Transaction"><FiMail /> Transaction</DropdownItem>
                   <Divider />
                   <Logout onClick={() => { logout?.(); setDropdownOpen(false); }}>
                     <FiLogOut /> Logout
@@ -430,6 +431,7 @@ const Navbar = () => {
               <DrawerLink to="/dashboard" onClick={() => setDrawerOpen(false)}><FiShield /> Dashboard</DrawerLink>
               <DrawerLink to="/wallet" onClick={() => setDrawerOpen(false)}><FiCreditCard /> Wallet</DrawerLink>
               <DrawerLink to="/marketplace" onClick={() => setDrawerOpen(false)}><FiShoppingBag /> Marketplace</DrawerLink>
+              <DrawerLink to="/Transaction" onClick={() => setDrawerOpen(false)}><FiShoppingBag /> Transaction</DrawerLink>
               <Divider />
               <DrawerLink to="/profile" onClick={() => setDrawerOpen(false)}><FiUser /> My Profile</DrawerLink>
               <DrawerLink to="/FaceDetection" onClick={() => setDrawerOpen(false)}><FiUser /> Face Detection</DrawerLink>
@@ -462,6 +464,11 @@ const Navbar = () => {
           
           <FooterNavItem to="/kyc" active={isActiveFooter("/kyc")}>
             <FiCheckCircle /> KYC
+          </FooterNavItem>
+
+          <FooterNavItem to="/Transaction" active={isActiveFooter("/Transaction")}>
+            <FiShoppingBag /> Transaction
+
           </FooterNavItem>
         </MobileBottomNav>
       )}
